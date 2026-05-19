@@ -30,7 +30,7 @@ lazyvim.json             → extras LazyVim (TypeScript, etc.)
 | blink.cmp | `blink.lua` | [docs/blink-cmp.md](docs/blink-cmp.md) |
 | LSP + Mason | `lsp.lua` | [docs/LSP.md](docs/LSP.md) |
 | treesitter | `nvim-treesitter.lua` | [docs/treesitter.md](docs/treesitter.md) |
-| catppuccin | `catppuccin.lua` | tema oscuro/claro |
+| catppuccin | `catppuccin.lua` | [docs/catppuccin.md](docs/catppuccin.md) |
 
 ## Primer uso
 

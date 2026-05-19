@@ -10,6 +10,7 @@
 | [LSP.md](LSP.md) | Language servers |
 | [mason.md](mason.md) | Instalar binarios LSP |
 | [treesitter.md](treesitter.md) | Parsers de sintaxis |
+| [catppuccin.md](catppuccin.md) | Tema de colores |
 | [notas-problemas-soluciones.md](notas-problemas-soluciones.md) | Errores frecuentes |
 | [notes/@notes.md](notes/@notes.md) | Plugins, lazy, terminal |
 
