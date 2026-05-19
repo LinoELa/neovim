@@ -34,7 +34,10 @@ lazyvim.json             → extras LazyVim (TypeScript, etc.)
 | treesitter | `nvim-treesitter.lua` | [docs/treesitter.md](docs/treesitter.md) |
 | catppuccin | `catppuccin.lua` | [docs/catppuccin.md](docs/catppuccin.md) |
 
-## Primer uso
+## Primer uso (máquina nueva o tras clone)
+
+1. Sigue el prompt para el agente: **[docs/notes/prompt-crear-todo-con-un-click.md](docs/notes/prompt-crear-todo-con-un-click.md)**
+2. O manualmente:
 
 ```powershell
 cd ruta\al\proyecto
@@ -43,7 +46,7 @@ nvim .
 
 ```vim
 :Lazy sync
-:Mason
+:MasonInstallAll
 :TSUpdate
 ```
 

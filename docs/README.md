@@ -13,6 +13,7 @@
 | [catppuccin.md](catppuccin.md) | Tema de colores |
 | [notas-problemas-soluciones.md](notas-problemas-soluciones.md) | Errores frecuentes |
 | [notes/@notes.md](notes/@notes.md) | Plugins, lazy, terminal |
+| [notes/prompt-crear-todo-con-un-click.md](notes/prompt-crear-todo-con-un-click.md) | **Prompt para montar todo tras `git pull`** |
 
 ## Mantenimiento
 

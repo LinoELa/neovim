@@ -51,10 +51,11 @@ No hay un programa "AutoScale" en el PC; suele ser **zoom del terminal** o **DPI
 
 | Dónde | Archivo | Tamaño |
 |-------|---------|--------|
-| Windows Terminal | `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json` | JetBrains Mono **14** |
-| Cursor (editor) | `%APPDATA%\Cursor\User\settings.json` | **14** |
-| Cursor (terminal integrada) | mismo `settings.json` | **14** (fijado) |
-| Neovim GUI | `lua/config/options.lua` | `JetBrains Mono:h14` |
+| Windows Terminal | `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json` | **JetBrainsMono NFM** 14 |
+| Cursor (terminal) | `%APPDATA%\Cursor\User\settings.json` | **JetBrainsMono NFM** 14 |
+| Neovim GUI | `lua/config/options.lua` | `JetBrainsMono NFM:h14` |
+
+Montaje completo en máquina nueva: `docs/notes/prompt-crear-todo-con-un-click.md`.
 
 ### Si se agranda al abrir el terminal
 
