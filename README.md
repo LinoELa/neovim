@@ -1,22 +1,48 @@
 # neovim
 
-Configuración personal de Neovim (LazyVim + plugins).
+Configuración personal: **LazyVim** + plugins propios.
 
 ## Requisitos (Windows)
 
-- [fd](https://github.com/sharkdp/fd): `winget install sharkdp.fd`
-- [ripgrep](https://github.com/BurntSushi/ripgrep): `winget install BurntSushi.ripgrep.MSVC`
-- Fuente: JetBrains Mono
+```powershell
+winget install sharkdp.fd
+winget install BurntSushi.ripgrep.MSVC
+```
 
-## Plugins principales
+- Fuente GUI: JetBrains Mono (`lua/config/options.lua`)
+- Reiniciar terminal tras instalar `fd` / `rg`
 
-- catppuccin (tema)
-- snacks.nvim (picker, explorer, etc.)
-- LSP language servers (rust-analyzer, tsserver, etc.)
-  - hacer que nuestro codigo hable con el servidor de lenguaje para autocompletado, errores, etc.
-- nvim-treesitter (resaltado de sintaxis avanzado)
-- 
+## Estructura
 
-## Notas
+```text
+init.lua              → carga lazy.nvim
+lua/config/           → opciones, keymaps, lazy
+lua/plugins/          → plugins (*.lua) y notas (@*.md)
+commandos-vim.md      → atajos que usamos
+@notas-problemas-soluciones.md → troubleshooting
+```
 
-Ver `@notas-problemas-soluciones.md` para problemas frecuentes y soluciones.
+## Plugins propios
+
+| Plugin / tema      | Archivo              | Notas              |
+|--------------------|----------------------|--------------------|
+| snacks.nvim        | `snacks.lua`         | `@snack.md`        |
+| LSP + Mason        | `lsp.lua`            | `@LSP.md`, `@mason.md` |
+| nvim-treesitter    | `nvim-treesitter.lua`| `@treesitter.md`   |
+| catppuccin         | `catppuccin.lua`     | tema               |
+
+## Primer uso en un proyecto
+
+```powershell
+cd ruta\al\proyecto
+nvim .
+```
+
+```vim
+:Lazy sync
+:Mason
+```
+
+## Troubleshooting
+
+Ver `@notas-problemas-soluciones.md`.

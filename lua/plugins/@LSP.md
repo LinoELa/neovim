@@ -1,49 +1,36 @@
-# LSP - MASON
+# LSP
 
-```
-MASON → herramienta para instalar y gestionar servidores de lenguaje (LSP), linters, formatters, etc. de forma sencilla.
-LSP (Language Server Protocol) → protocolo que permite a los editores de código comunicarse con servidores de lenguaje para funciones como autocompletado, diagnóstico de errores, etc.
-```
+<!-- Notas LSP. Config real: lsp.lua + extra typescript en lazyvim.json -->
 
+## Conceptos
 
+- **LSP** — protocolo para autocompletado, diagnósticos, ir a definición, etc.
+- **Mason** — instala los binarios de los servidores (ver `@mason.md`).
 
-Vamos a instalar y configurar los LSP principales para **TypeScript** y **JavaScript**, ya que son los lenguajes que más usamos en el trabajo.
+## Archivos de config
 
-Los servidores principales serán:
+| Archivo        | Rol                                                |
+|----------------|----------------------------------------------------|
+| `lsp.lua`      | `ensure_installed` y servidores extra              |
+| `lazyvim.json` | Extra `lang.typescript` → configura `vtsls`        |
 
-```txt
-ts_ls
-```
+## Servidores (trabajo habitual)
 
-Para TypeScript y JavaScript.
+| Servidor        | Lenguajes              |
+|-----------------|------------------------|
+| `vtsls`         | TypeScript, JavaScript |
+| `lua_ls`        | Lua (config Neovim)    |
+| `rust_analyzer` | Rust                   |
+| `pyright`       | Python                 |
 
-También conviene instalar estos porque suelen aparecer en proyectos frontend:
+## Comandos / atajos
 
-```txt
-html
-cssls
-jsonls
-eslint
-```
+| Atajo / comando | Uso                                      |
+|-----------------|------------------------------------------|
+| `Espacio c l`   | Info LSP (Snacks) — **el que funciona**  |
+| `:Mason`        | Instalar servidores                      |
+| `:LspInfo`      | Alternativa (a veces tras abrir un archivo) |
 
-Quedaría así:
+## Importante
 
-```lua
-ensure_installed = {
-  "ts_ls",
-  "html",
-  "cssls",
-  "jsonls",
-  "eslint",
-}
-```
-
-Resumen:
-
-```txt
-ts_ls   → TypeScript y JavaScript
-html    → HTML
-cssls   → CSS
-jsonls  → JSON
-eslint  → reglas y errores de ESLint
-```
+No poner `config = function() vim.lsp.enable(...) end` en `lsp.lua`: rompe toda la config de LazyVim. Solo usar `opts`.

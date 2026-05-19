@@ -1,3 +1,4 @@
+-- Picker, explorador y utilidades (folke/snacks.nvim)
 return {
   "folke/snacks.nvim",
   priority = 1000,
@@ -7,7 +8,6 @@ return {
     picker = { enabled = true },
   },
   keys = {
-    -- Top Pickers & Explorer
     { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
@@ -15,4 +15,4 @@ return {
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
     { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
   },
-}       
+}
