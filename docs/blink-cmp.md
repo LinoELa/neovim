@@ -29,7 +29,7 @@ Preset tipo VS Code. Más opciones: `:h blink-cmp-config-keymap`.
 
 ## Requisitos
 
-- Fuente **Nerd Font** en terminal para iconos (`appearance.nerd_font_variant = "mono"`).
+- Fuente **JetBrainsMono NFM** en terminal (Nerd Font Mono). `JetBrains Mono` normal **rompe** los iconos.
 - LSP activo para sugerencias de código (ver `docs/LSP.md`).
 
 ## Avisos del editor (lua_ls)

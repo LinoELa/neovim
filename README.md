@@ -9,8 +9,10 @@ winget install sharkdp.fd
 winget install BurntSushi.ripgrep.MSVC
 ```
 
-- Fuente: **JetBrains Mono** (tamaño 14 en terminal y editor)
-- Reiniciar terminal después de instalar `fd` / `rg`
+- Fuente terminal/Neovim: **JetBrainsMono NFM** (Nerd Font Mono, tamaño 14)
+- Instalar: `winget install DEVCOM.JetBrainsMonoNerdFont`
+- Sin Nerd Font los iconos se ven rotos (cuadrados o `?`)
+- Reiniciar terminal después de instalar fuentes o `fd` / `rg`
 
 ## Estructura del repo
 

@@ -1,8 +1,8 @@
 -- Opciones de Neovim (se cargan antes de lazy.nvim)
 -- Defaults LazyVim: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 
--- Fuente GUI (Neovide/GVim). En terminal: Windows Terminal / Cursor settings
-vim.opt.guifont = "JetBrains Mono:h14"
+-- Nerd Font para iconos (LazyVim, blink, snacks). Terminal: JetBrainsMono NFM
+vim.opt.guifont = "JetBrainsMono NFM:h14"
 
 vim.opt.number = true
 vim.opt.relativenumber = false

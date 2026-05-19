@@ -143,3 +143,11 @@
 **Descripción:** En el editor: `not define annotate type: blink.cmp.Config`, `cmp.ConfigSchema`, `duplicate annotate type: PluginLspOpts`.
 
 **Solución:** En `blink.lua` no usar `---@type blink.cmp.Config`. Borrar `lua/plugins/example.lua` si existe (plantilla LazyVim; no debe estar en el repo). Cerrar pestaña sin guardar si solo está abierta en el editor. `.luarc.json` en la raíz del config desactiva esos avisos.
+
+---
+
+## Iconos rotos o cuadrados en Neovim
+
+**Descripción:** En picker, LSP, blink o diagnósticos aparecen `?`, cuadrados o símbolos raros en lugar de iconos.
+
+**Solución:** Instalar Nerd Font: `winget install DEVCOM.JetBrainsMonoNerdFont`. En Windows Terminal y Cursor usar fuente `JetBrainsMono NFM` (no `JetBrains Mono` normal). Reiniciar terminal. En Neovim: `lua/config/options.lua` → `guifont = "JetBrainsMono NFM:h14"`.
