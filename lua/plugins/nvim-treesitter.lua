@@ -1,10 +1,9 @@
-
+-- Extiende la config de LazyVim (rama main de nvim-treesitter).
+-- No usar require("nvim-treesitter.configs") — esa API ya no existe.
 return {
-  "nvim-treesitter/nvim-treesitter",
-  lazy = false,
-  build = ":TSUpdate",
-  config = function()
-    require("nvim-treesitter.configs").setup({
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
       ensure_installed = {
         "bash",
         "c",
@@ -14,21 +13,17 @@ return {
         "html",
         "javascript",
         "json",
+        "jsonc",
         "lua",
+        "markdown",
+        "markdown_inline",
         "python",
         "rust",
-        "typescript",
         "tsx",
+        "typescript",
         "vim",
-        "jsonc",
-        "json",
-        "yaml",        
-          "markdown",
-          "markdown_inline",
+        "yaml",
       },
-      highlight = { enable = true },
-      auto_install = true,
-      indent = { enable = true },
-    })
-  end,
+    },
+  },
 }
