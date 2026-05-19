@@ -135,3 +135,11 @@
 **Descripción:** Referencia rápida de comandos.
 
 **Solución:** `Espacio c l` (info LSP, **recomendado**), `:Mason` (instalar tools), `:LspInfo` / `:checkhealth vim.lsp` (alternativa), `:Lazy sync` (sincronizar plugins).
+
+---
+
+## lua_ls: avisos en `blink.lua` o `example.lua`
+
+**Descripción:** En el editor: `not define annotate type: blink.cmp.Config`, `cmp.ConfigSchema`, `duplicate annotate type: PluginLspOpts`.
+
+**Solución:** En `blink.lua` no usar `---@type blink.cmp.Config`. Borrar `lua/plugins/example.lua` si existe (plantilla LazyVim; no debe estar en el repo). Cerrar pestaña sin guardar si solo está abierta en el editor. `.luarc.json` en la raíz del config desactiva esos avisos.

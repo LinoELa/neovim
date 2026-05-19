@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema-en-us.json",
+  "diagnostics": {
+    "globals": ["vim", "Snacks", "LazyVim", "lazy"],
+    "disable": ["duplicate-doc-alias", "undefined-doc-name"]
+  }
+}
