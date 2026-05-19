@@ -5,6 +5,7 @@
 | Archivo | Contenido |
 |---------|-----------|
 | [commandos-vim.md](commandos-vim.md) | Atajos y comandos que usamos |
+| [comandos-notion.md](comandos-notion.md) | **Copiar a Notion** — guía completa |
 | [blink-cmp.md](blink-cmp.md) | Autocompletado (Tab, fuentes) |
 | [snack.md](snack.md) | Picker y explorador |
 | [LSP.md](LSP.md) | Language servers |

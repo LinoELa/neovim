@@ -2,7 +2,13 @@
 
 `<leader>` = **Espacio**
 
-Documentación ampliada por plugin en `docs/`.
+Copia para Notion: `docs/comandos-notion.md`
+
+## Cursor (editor)
+
+| Atajo | Acción |
+|-------|--------|
+| `Ctrl + /` | Abrir / cerrar terminal integrada |
 
 ## Autocompletado (blink.cmp)
 
