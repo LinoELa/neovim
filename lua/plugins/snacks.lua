@@ -5,7 +5,29 @@ return {
   lazy = false,
   opts = {
     explorer = { enabled = true },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      sources = {
+        explorer = {
+          -- Por defecto el sidebar mide 40 columnas y los nombres se cortan
+          layout = {
+            preset = "sidebar",
+            preview = false,
+            layout = {
+              width = 52,
+              min_width = 52,
+            },
+          },
+          formatters = {
+            file = {
+              filename_only = true,
+              truncate = "left", -- muestra el final del nombre (extensión)
+              min_width = 48,
+            },
+          },
+        },
+      },
+    },
   },
   keys = {
     { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
