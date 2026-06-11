@@ -7,16 +7,28 @@ vim.opt.number = true
 vim.opt.relativenumber = false
 vim.opt.cursorline = true
 vim.opt.wrap = false
-vim.opt.expandtab = false
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
+
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
+vim.opt.expandtab = true
+
+
 vim.opt.clipboard = "unnamedplus"
 vim.opt.swapfile = false
--- Usar PowerShell como shell de Neovim en Windows
-vim.opt.shell = "powershell.exe"
-vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
-vim.opt.shellquote = ""
-vim.opt.shellxquote = ""
+if vim.fn.has("win32") == 1 then
+  -- Windows: usar PowerShell
+  vim.opt.shell = "powershell.exe"
+  vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
+  vim.opt.shellquote = ""
+  vim.opt.shellxquote = ""
+else
+  -- Linux/VM: usar bash
+  vim.opt.shell = "bash"
+  vim.opt.shellcmdflag = "-c"
+  vim.opt.shellquote = ""
+  vim.opt.shellxquote = ""
+end
 
 
 
