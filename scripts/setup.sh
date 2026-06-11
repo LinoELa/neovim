@@ -113,13 +113,7 @@ ensure_command() {
 }
 
 run_nvim_sync() {
-  if [[ "$repo_name" != "nvim" ]]; then
-    echo "El repo debe llamarse 'nvim' para que el setup headless cargue esta config automaticamente." >&2
-    echo "Renombra la carpeta a 'nvim' o muevela a ~/.config/nvim." >&2
-    exit 1
-  fi
-
-  XDG_CONFIG_HOME="$config_home" nvim --headless "+Lazy! sync" "+MasonInstallAll" "+TSUpdateSync" "+qa"
+  NVIM_APPNAME="$repo_name" XDG_CONFIG_HOME="$config_home" nvim --headless "+Lazy! sync" "+MasonInstallAll" "+TSUpdateSync" "+qa"
 }
 
 step "Validando repositorio"

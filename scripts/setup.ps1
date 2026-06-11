@@ -118,14 +118,13 @@ function Configure-GitHooks {
 function Invoke-NvimStep {
   param([string[]]$Arguments)
 
-  if ($repoName -ne "nvim") {
-    throw "La carpeta del repo debe llamarse 'nvim' para que el setup headless cargue esta config automaticamente."
-  }
-
   $previousXdg = $env:XDG_CONFIG_HOME
+  $previousAppName = $env:NVIM_APPNAME
   $env:XDG_CONFIG_HOME = $configHome
+  $env:NVIM_APPNAME = $repoName
   & nvim @Arguments
   $env:XDG_CONFIG_HOME = $previousXdg
+  $env:NVIM_APPNAME = $previousAppName
   if ($LASTEXITCODE -ne 0) {
     throw "Fallo ejecutando: nvim $($Arguments -join ' ')"
   }

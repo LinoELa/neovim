@@ -82,9 +82,10 @@ bash ./scripts/setup.sh
 
 Importante:
 
-- el setup headless asume que la carpeta del repo se llama `nvim`
+- el setup headless usa `NVIM_APPNAME` con el nombre real de la carpeta
 - `cd /root/neovim` funciona
-- `cd /root/mi-carpeta-rara` no cargara esta config como app de Neovim
+- `cd ~/.config/nvim` tambien funciona
+- si renombras la carpeta, el setup cargara esa config con ese nombre
 
 Si no recuerdas donde estaba clonado:
 
@@ -201,7 +202,7 @@ E492: Not an editor command: MasonInstallAll
 E492: Not an editor command: TSUpdateSync
 ```
 
-el problema era que Neovim no estaba cargando esta config al arrancar en headless. El setup actual ya fuerza la ruta correcta cuando el repo se llama `nvim`.
+el problema era que Neovim no estaba cargando esta config al arrancar en headless. El setup actual ya fuerza la ruta correcta usando `NVIM_APPNAME` + `XDG_CONFIG_HOME`.
 
 ## Fuente y terminal
 

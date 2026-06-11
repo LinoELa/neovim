@@ -232,12 +232,41 @@ Tras instalar herramientas, **cerrar todas las ventanas de terminal** y abrir un
 
 #### D.1 Sincronizar plugins (headless)
 
+Preferir primero los scripts del repo:
+
+```powershell
+cd $env:LOCALAPPDATA\nvim
+.\scripts\setup.ps1
+```
+
+En Linux / Docker, equivalente:
+
+```bash
+cd ~/.config/nvim   # o la carpeta real del repo, por ejemplo /root/neovim
+bash ./scripts/setup.sh
+```
+
+Estos scripts ya lanzan Neovim headless con la config correcta usando `NVIM_APPNAME` + `XDG_CONFIG_HOME`.
+
+Si por algun motivo necesitas lanzar Neovim manualmente en headless, usa la raiz del repo:
+
 ```powershell
 cd $env:LOCALAPPDATA\nvim
 nvim --headless "+Lazy! sync" +qa 2>&1
 ```
 
 Si falla, abrir Neovim interactivo y ejecutar `:Lazy sync` manualmente.
+
+#### D.1 bis Docker / Linux fuera de `~/.config/nvim`
+
+Si el repo no esta en la ruta canonica de Neovim pero quieres ejecutar la sincronizacion manualmente, fuerza la config asi:
+
+```bash
+cd /root/neovim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim --headless "+Lazy! sync" +qa
+```
+
+Sustituye `neovim` por el nombre real de la carpeta si cambia.
 
 #### D.2 Mason — instalar servidores LSP
 
@@ -294,6 +323,7 @@ Comprobar que **no** hay error:
 
 - `module 'nvim-treesitter.configs' not found` → si aparece, `nvim-treesitter.lua` usa API vieja; debe usar solo `opts`, ver repo
 - `Failed to run config for nvim-treesitter` por `configs` → corregir según `docs/treesitter.md`
+- `E492: Not an editor command: Lazy! sync` / `MasonInstallAll` / `TSUpdateSync` → Neovim arrancó sin cargar esta config. Ejecutar `scripts/setup.ps1` / `scripts/setup.sh` o forzar `NVIM_APPNAME` + `XDG_CONFIG_HOME`.
 - `No supported finder found: fd` → instalar fd y reiniciar terminal
 - `Permission denied` en git push → no es bloqueante para uso local
 
