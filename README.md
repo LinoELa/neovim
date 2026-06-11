@@ -55,6 +55,15 @@ bash ./scripts/setup.sh
 
 Si entras al contenedor y ejecutas esto:
 
+
+```bash
+mkdir -p ~/.config
+git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
+nvim
+```
+
+Es lo mismo que arriba 
+
 ```bash
 git pull https://github.com/LinoELa/neovim.git
 ```
