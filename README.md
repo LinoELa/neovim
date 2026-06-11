@@ -2,7 +2,19 @@
 
 Configuración personal de Neovim basada en `LazyVim`.
 
-Está pensada principalmente para trabajar en:
+Versión principal usada actualmente:
+
+```text
+version-1.0
+```
+
+Repositorio:
+
+```text
+https://github.com/LinoELa/neovim/tree/version-1.0
+```
+
+Esta configuración está pensada principalmente para trabajar en:
 
 1. Docker / Linux, mi entorno principal de pruebas y configuración.
 2. Windows con WSL, mi segundo entorno más usado.
@@ -21,18 +33,143 @@ Incluye:
 
 ---
 
-## 1. Uso principal: Docker / Linux
+## 1. Instalación principal en Docker / Linux
 
-Este es el flujo recomendado cuando estoy dentro de un contenedor Linux.
+### Configuracion Rapida Docker - Linux 
 
-### 1.1 Primera instalación
+#### Hay que leer mas abajo es Importante
 
-Dentro del contenedor:
+```bash
+apt update
+apt install curl git -y
+
+cd /root
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+cd /root/neovim
+
+bash ./scripts/setup.sh
+
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+
+```
+
+Este es el flujo principal cuando se crea un contenedor nuevo.
+
+Normalmente al entrar en el contenedor estás en la raíz del sistema:
+
+```bash
+/
+```
+
+Puedes comprobarlo con:
+
+```bash
+pwd
+```
+
+Si ves algo como esto:
+
+```text
+bin  boot  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+```
+
+significa que estás en `/`.
+
+No clones el repositorio directamente en `/`, porque `/` es la raíz del sistema y contiene carpetas internas de Linux.
+
+La ruta recomendada para este repo dentro de Docker es:
+
+```text
+/root/neovim
+```
+
+---
+
+### 1.1 Instalar Git y Curl
+
+Primero instala `git` y `curl`.
+
+En Ubuntu / Debian dentro del contenedor:
+
+```bash
+apt update
+apt install curl git -y
+```
+
+Esto es necesario porque:
+
+- `git` sirve para clonar el repositorio;
+- `curl` sirve para descargar dependencias, como una versión moderna de Neovim si hace falta.
+
+---
+
+### 1.2 Ir a `/root`
+
+Después entra en `/root`:
 
 ```bash
 cd /root
-git clone https://github.com/LinoELa/neovim.git
+```
+
+Comprueba la ruta:
+
+```bash
+pwd
+```
+
+Debe salir:
+
+```text
+/root
+```
+
+---
+
+### 1.3 Clonar la rama correcta
+
+La rama usada actualmente es:
+
+```text
+version-1.0
+```
+
+Clona esa rama concreta:
+
+```bash
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+```
+
+Esto crea la carpeta:
+
+```text
+/root/neovim
+```
+
+Entra en el repositorio:
+
+```bash
 cd /root/neovim
+```
+
+Comprueba la rama:
+
+```bash
+git branch
+```
+
+Debe aparecer:
+
+```text
+* version-1.0
+```
+
+---
+
+### 1.4 Ejecutar el setup
+
+Ejecuta:
+
+```bash
 bash ./scripts/setup.sh
 ```
 
@@ -41,7 +178,9 @@ El script debe encargarse de:
 - instalar dependencias base;
 - instalar `git`, `curl`, `ripgrep`, `fd`;
 - instalar compilador C para Treesitter;
+- instalar `make`;
 - instalar o corregir Neovim si la versión es antigua;
+- evitar AppImage en Docker;
 - sincronizar plugins con `Lazy`;
 - configurar hooks locales de Git.
 
@@ -54,7 +193,17 @@ cd /root/neovim
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
 ```
 
-Dentro de Neovim puedes ejecutar:
+---
+
+### 1.5 Abrir Neovim
+
+Abre Neovim con:
+
+```bash
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+```
+
+Dentro de Neovim prueba:
 
 ```vim
 :Lazy
@@ -63,7 +212,41 @@ Dentro de Neovim puedes ejecutar:
 :checkhealth
 ```
 
-### 1.2 Si el repo ya existe
+Si `:Lazy` y `:Mason` funcionan, la configuración está cargando bien.
+
+---
+
+### 1.6 Flujo completo desde cero
+
+Este es el bloque completo para copiar y pegar en un contenedor nuevo:
+
+```bash
+apt update
+apt install curl git -y
+
+cd /root
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+cd /root/neovim
+
+bash ./scripts/setup.sh
+
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+```
+
+Dentro de Neovim:
+
+```vim
+:Lazy
+:Mason
+:TSUpdate
+:checkhealth
+```
+
+---
+
+## 2. Actualizar el repo en Docker / Linux
+
+Si el repo ya existe:
 
 ```bash
 cd /root/neovim
@@ -71,7 +254,15 @@ git pull
 bash ./scripts/setup.sh
 ```
 
-### 1.3 Si no recuerdas dónde está el repo
+Después abre Neovim:
+
+```bash
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+```
+
+---
+
+## 3. Si no recuerdas dónde está el repo
 
 Busca carpetas Git:
 
@@ -79,7 +270,7 @@ Busca carpetas Git:
 find / -type d -name ".git" 2>/dev/null
 ```
 
-Si devuelve algo como:
+Si aparece:
 
 ```text
 /root/neovim/.git
@@ -89,11 +280,14 @@ entra en la carpeta padre:
 
 ```bash
 cd /root/neovim
+git branch
 git pull
 bash ./scripts/setup.sh
 ```
 
-### 1.4 Error típico: usar `git pull` fuera del repo
+---
+
+## 4. Error típico: hacer `git pull` fuera del repo
 
 Esto está mal si todavía no has clonado el repo:
 
@@ -107,20 +301,28 @@ Error esperado:
 fatal: not a git repository (or any of the parent directories): .git
 ```
 
-Significa que estás fuera de una carpeta con `.git`.
+Significa que estás fuera de una carpeta Git.
 
 Primero clona:
 
 ```bash
 cd /root
-git clone https://github.com/LinoELa/neovim.git
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
 cd /root/neovim
 bash ./scripts/setup.sh
 ```
 
-### 1.5 Error típico: Neovim demasiado antiguo
+Después, cuando ya estés dentro de `/root/neovim`, sí puedes usar:
 
-Si ves algo como:
+```bash
+git pull
+```
+
+---
+
+## 5. Error típico: Neovim demasiado antiguo
+
+Si ves:
 
 ```text
 lazy.nvim requires Neovim >= 0.8.0
@@ -128,9 +330,21 @@ lazy.nvim requires Neovim >= 0.8.0
 
 significa que el sistema está usando un Neovim antiguo.
 
-En Ubuntu puede pasar porque `apt install neovim` instala una versión vieja, por ejemplo `0.6.1`.
+En Ubuntu puede pasar porque:
 
-El `setup.sh` debe evitar esto instalando Neovim moderno desde `.tar.gz`, no desde AppImage.
+```bash
+apt install neovim
+```
+
+puede instalar una versión antigua, por ejemplo:
+
+```text
+NVIM v0.6.1
+```
+
+LazyVim necesita una versión moderna.
+
+El `setup.sh` debe evitar esto instalando Neovim moderno desde `.tar.gz`.
 
 No usar AppImage en Docker, porque suele fallar con:
 
@@ -138,7 +352,7 @@ No usar AppImage en Docker, porque suele fallar con:
 fuse: device not found
 ```
 
-Comprobación manual:
+Comprobaciones útiles:
 
 ```bash
 which nvim
@@ -154,7 +368,16 @@ Idealmente:
 NVIM v0.12.x
 ```
 
-### 1.6 Error típico: `:Lazy` o `:Mason` no existen
+Si `/usr/local/bin/nvim --version` muestra una versión moderna pero `nvim --version` muestra una antigua, limpia la caché de Bash:
+
+```bash
+hash -r
+nvim --version
+```
+
+---
+
+## 6. Error típico: `:Lazy` o `:Mason` no existen
 
 Si dentro de Neovim aparece:
 
@@ -169,6 +392,7 @@ puede ser por una de estas causas:
 2. LazyVim no está cargando.
 3. Estás abriendo otro `nvim`.
 4. La configuración está en una ruta distinta.
+5. No estás usando `NVIM_APPNAME` y `XDG_CONFIG_HOME` correctamente.
 
 Comandos útiles:
 
@@ -184,7 +408,7 @@ Dentro de Neovim:
 :echo stdpath("config")
 ```
 
-Para este repo, si está en `/root/neovim`, se usa así:
+Para este repo, si está en `/root/neovim`, se abre así:
 
 ```bash
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
@@ -198,24 +422,24 @@ Así Neovim carga:
 
 ---
 
-## 2. Segundo entorno: Windows con WSL
+## 7. Segundo entorno: Windows con WSL
 
 Este flujo es recomendable si trabajo en Windows pero quiero un entorno Linux real.
 
-### 2.1 Instalar dependencias dentro de WSL
+### 7.1 Instalar dependencias dentro de WSL
 
 En Ubuntu WSL:
 
 ```bash
 sudo apt update
-sudo apt install -y git curl ripgrep fd-find build-essential
+sudo apt install -y git curl ripgrep fd-find build-essential tar gzip
 ```
 
-Después clona la configuración:
+Después clona la rama correcta:
 
 ```bash
 cd ~
-git clone https://github.com/LinoELa/neovim.git
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
 cd ~/neovim
 bash ./scripts/setup.sh
 ```
@@ -226,13 +450,15 @@ Abre Neovim:
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=$HOME nvim
 ```
 
-### 2.2 Usar la configuración como `~/.config/nvim`
+---
+
+### 7.2 Usar la configuración como `~/.config/nvim`
 
 Si quieres que `nvim` cargue esta config sin variables:
 
 ```bash
 mkdir -p ~/.config
-git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git ~/.config/nvim
 bash ~/.config/nvim/scripts/setup.sh
 nvim
 ```
@@ -249,14 +475,14 @@ nvim
 
 ---
 
-## 3. Windows nativo
+## 8. Windows nativo
 
 Usa esto si quieres trabajar directamente desde PowerShell.
 
-### 3.1 Instalación inicial
+### 8.1 Instalación inicial
 
 ```powershell
-git clone https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
+git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
 cd $env:LOCALAPPDATA\nvim
 .\scripts\setup.ps1
 ```
@@ -267,7 +493,9 @@ Después abre:
 nvim .
 ```
 
-### 3.2 Dependencias manuales equivalentes
+---
+
+### 8.2 Dependencias manuales equivalentes
 
 ```powershell
 winget install Git.Git
@@ -277,7 +505,9 @@ winget install BurntSushi.ripgrep.MSVC
 winget install DEVCOM.JetBrainsMonoNerdFont
 ```
 
-### 3.3 Ruta normal en Windows
+---
+
+### 8.3 Ruta normal en Windows
 
 ```text
 %LOCALAPPDATA%\nvim
@@ -291,7 +521,7 @@ C:\Users\TU_USUARIO\AppData\Local\nvim
 
 ---
 
-## 4. Qué resuelve este repo
+## 9. Qué resuelve este repo
 
 La idea es poder abrir un proyecto con:
 
@@ -311,7 +541,7 @@ y tener listo:
 
 ---
 
-## 5. Qué hace el setup
+## 10. Qué hace el setup
 
 Los scripts de setup hacen esto:
 
@@ -323,18 +553,19 @@ Los scripts de setup hacen esto:
    - `fd`;
    - `rg`.
 3. En Linux instalan compilador C para `nvim-treesitter`.
-4. En Linux corrigen el caso `fd-find` / `fdfind`.
-5. En Linux evitan Neovim antiguo instalando versión moderna si hace falta.
-6. En Windows intentan instalar la fuente `JetBrainsMono NFM`.
-7. Configuran:
+4. En Linux instalan `make`, `tar` y `gzip` si hacen falta.
+5. En Linux corrigen el caso `fd-find` / `fdfind`.
+6. En Linux evitan Neovim antiguo instalando versión moderna si hace falta.
+7. En Windows intentan instalar la fuente `JetBrainsMono NFM`.
+8. Configuran:
    - `git config core.hooksPath .githooks`.
-8. Ejecutan Neovim en modo headless:
+9. Ejecutan Neovim en modo headless:
    - `Lazy! sync`.
-9. Al terminar imprimen el siguiente paso exacto para abrir Neovim.
+10. Al terminar imprimen el siguiente paso exacto para abrir Neovim.
 
 ---
 
-## 6. Automatización después de `git pull`
+## 11. Automatización después de `git pull`
 
 Git no ejecuta hooks versionados por defecto.
 
@@ -346,7 +577,7 @@ Por eso el setup configura este repo para usar:
 
 Después del primer setup, un `git pull` que termine en merge puede lanzar el setup automáticamente.
 
-Flujo recomendado:
+Flujo recomendado en Linux / Docker:
 
 ```bash
 git pull
@@ -372,13 +603,17 @@ Debe devolver:
 .githooks
 ```
 
-Si no, vuelve a lanzar el setup.
+Si no:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ---
 
-## 7. Dependencias del sistema
+## 12. Dependencias del sistema
 
-### Linux / Docker
+### 12.1 Linux / Docker
 
 Necesarias:
 
@@ -395,11 +630,11 @@ Necesarias:
 En Ubuntu / Debian:
 
 ```bash
-sudo apt update
-sudo apt install -y git curl ripgrep fd-find build-essential tar gzip
+apt update
+apt install -y git curl ripgrep fd-find build-essential tar gzip
 ```
 
-### Windows
+### 12.2 Windows
 
 Necesarias:
 
@@ -421,7 +656,7 @@ winget install DEVCOM.JetBrainsMonoNerdFont
 
 ---
 
-## 8. Fuente y terminal
+## 13. Fuente y terminal
 
 Para que los iconos se vean bien:
 
@@ -436,7 +671,7 @@ Si ves cuadrados, interrogaciones o iconos rotos:
 
 ---
 
-## 9. Atajos importantes
+## 14. Atajos importantes
 
 `<leader>` es `Espacio`.
 
@@ -464,7 +699,7 @@ docs/commandos-vim.md
 
 ---
 
-## 10. LSP y lenguajes configurados
+## 15. LSP y lenguajes configurados
 
 Servidores configurados con `mason-lspconfig`:
 
@@ -483,7 +718,7 @@ lazyvim.plugins.extras.lang.typescript
 
 ---
 
-## 11. Estructura del repo
+## 16. Estructura del repo
 
 ```text
 init.lua
@@ -511,7 +746,7 @@ docs/
 
 ---
 
-## 12. Plugins propios
+## 17. Plugins propios
 
 | Plugin | Archivo | Documentación |
 |---|---|---|
@@ -523,7 +758,7 @@ docs/
 
 ---
 
-## 13. Documentación útil
+## 18. Documentación útil
 
 | Archivo | Para qué sirve |
 |---|---|
@@ -538,7 +773,7 @@ docs/
 
 ---
 
-## 14. Problemas frecuentes
+## 19. Problemas frecuentes
 
 ### `fd` o `rg` no funcionan
 
@@ -577,7 +812,7 @@ make --version
 En Ubuntu:
 
 ```bash
-sudo apt install -y build-essential
+apt install -y build-essential
 ```
 
 ### Mason no abre
@@ -620,30 +855,37 @@ git config core.hooksPath .githooks
 
 ---
 
-## 15. Reglas para mantener esta config
+## 20. Reglas para mantener esta config
 
 1. No añadir `lua/plugins/example.lua`.
 2. No importar plugins en `init.lua`.
 3. `init.lua` solo debe cargar:
-   ```lua
-   require("config.lazy")
-   ```
+
+```lua
+require("config.lazy")
+```
+
 4. Plugins nuevos en:
-   ```text
-   lua/plugins/<nombre>.lua
-   ```
+
+```text
+lua/plugins/<nombre>.lua
+```
+
 5. Documentación nueva en:
-   ```text
-   docs/
-   ```
+
+```text
+docs/
+```
+
 6. Tras cambios de plugins o tooling:
-   ```vim
-   :Lazy sync
-   ```
+
+```vim
+:Lazy sync
+```
 
 ---
 
-## 16. Estado esperado al terminar
+## 21. Estado esperado al terminar
 
 Una instalación sana debe cumplir:
 
