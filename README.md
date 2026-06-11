@@ -51,19 +51,25 @@ bash ./scripts/setup.sh
 
 ### Docker
 
-Si entras a un contenedor y haces esto:
+1. #### Error normal si haces `git pull` fuera del repo
+
+Si entras al contenedor y ejecutas esto:
 
 ```bash
 git pull https://github.com/LinoELa/neovim.git
 ```
 
-el error es normal si no estas dentro de un repo Git ya clonado:
+La respuesta normal es:
 
 ```text
 fatal: not a git repository (or any of the parent directories): .git
 ```
 
-Flujo correcto dentro del contenedor la primera vez:
+Eso significa que todavia no estas dentro de una carpeta clonada con `.git`.
+
+2. #### Primera instalacion dentro del contenedor
+
+Ejecuta esto paso a paso:
 
 ```bash
 cd /root
@@ -72,7 +78,16 @@ cd neovim
 bash ./scripts/setup.sh
 ```
 
-Si el repo ya existia dentro del contenedor:
+Respuesta esperada:
+
+- `Cloning into 'neovim'...`
+- instalacion de dependencias si faltan
+- sincronizacion de `Lazy`
+- al final, el script te dira que abras Neovim con un comando exacto
+
+3. #### Si el repo ya estaba clonado
+
+Ejecuta esto:
 
 ```bash
 cd /root/neovim
@@ -80,20 +95,62 @@ git pull
 bash ./scripts/setup.sh
 ```
 
-Importante:
+Respuesta esperada:
 
-- el setup headless usa `NVIM_APPNAME` con el nombre real de la carpeta
-- `cd /root/neovim` funciona
-- `cd ~/.config/nvim` tambien funciona
-- si renombras la carpeta, el setup cargara esa config con ese nombre
+- `Already up to date.` o descarga de cambios nuevos
+- despues, salida del script de setup
 
-Si no recuerdas donde estaba clonado:
+4. #### Si no recuerdas donde estaba el repo
+
+Busca la carpeta Git:
 
 ```bash
 find / -type d -name ".git" 2>/dev/null
 ```
 
-Luego entra a la carpeta padre del `.git` encontrado y desde ahi ejecuta `git pull`.
+Posible respuesta:
+
+```text
+/root/neovim/.git
+```
+
+Si sale una ruta como esa, entra a la carpeta padre:
+
+```bash
+cd /root/neovim
+git pull
+bash ./scripts/setup.sh
+```
+
+5. #### Que hacer cuando termine `setup.sh`
+
+El propio script imprimira en consola algo como esto:
+
+```bash
+cd /root/neovim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+```
+
+Ejecuta ese comando.
+
+Dentro de Neovim, ejecuta:
+
+```vim
+:Mason
+:TSUpdate
+```
+
+Respuesta esperada:
+
+- `:Mason` abre el gestor de herramientas LSP
+- `:TSUpdate` instala o actualiza parsers de Treesitter
+
+6. #### Notas importantes
+
+- el setup headless usa `NVIM_APPNAME` con el nombre real de la carpeta
+- `cd /root/neovim` funciona
+- `cd ~/.config/nvim` tambien funciona
+- si renombras la carpeta, el setup cargara esa config con ese nombre
 
 ## Que hace el setup
 
@@ -105,12 +162,15 @@ Los scripts de `setup` hacen lo siguiente:
    - `nvim`
    - `fd`
    - `rg`
-3. En Windows intentan instalar tambien la fuente `JetBrainsMono NFM`.
-4. Configuran `git config core.hooksPath .githooks`.
-5. Ejecutan Neovim en modo headless para correr:
+3. En Linux instalan tambien el compilador C necesario para `nvim-treesitter`.
+4. En Windows intentan instalar tambien la fuente `JetBrainsMono NFM`.
+5. Configuran `git config core.hooksPath .githooks`.
+6. Ejecutan Neovim en modo headless para correr:
    - `Lazy! sync`
-   - `MasonInstallAll`
-   - `TSUpdateSync`
+7. Al terminar, imprimen en consola el siguiente paso exacto para abrir Neovim y rematar:
+   - `NVIM_APPNAME=<nombre-del-repo> XDG_CONFIG_HOME=<carpeta-padre> nvim`
+   - `:Mason`
+   - `:TSUpdate`
 
 ## Automatizacion tras git pull
 

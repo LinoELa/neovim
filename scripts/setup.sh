@@ -79,6 +79,38 @@ install_packages() {
   exit 1
 }
 
+ensure_build_toolchain() {
+  step "Comprobando toolchain para Treesitter"
+
+  if have cc || have gcc || have clang; then
+    echo "Compilador C ya disponible."
+    return
+  fi
+
+  if have apt-get; then
+    install_packages build-essential
+    return
+  fi
+
+  if have dnf; then
+    install_packages gcc gcc-c++ make
+    return
+  fi
+
+  if have pacman; then
+    install_packages base-devel
+    return
+  fi
+
+  if have zypper; then
+    install_packages gcc gcc-c++ make
+    return
+  fi
+
+  echo "No pude instalar automaticamente un compilador C. Instala gcc/clang y make manualmente." >&2
+  exit 1
+}
+
 ensure_fd_alias() {
   if have fd; then
     return
@@ -113,7 +145,7 @@ ensure_command() {
 }
 
 run_nvim_sync() {
-  NVIM_APPNAME="$repo_name" XDG_CONFIG_HOME="$config_home" nvim --headless "+Lazy! sync" "+MasonInstallAll" "+TSUpdateSync" "+qa"
+  NVIM_APPNAME="$repo_name" XDG_CONFIG_HOME="$config_home" nvim --headless "+Lazy! sync" "+qa"
 }
 
 step "Validando repositorio"
@@ -124,6 +156,7 @@ ensure_command git git
 configure_git_hooks
 ensure_command nvim neovim
 ensure_command rg ripgrep
+ensure_build_toolchain
 
 if have apt-get; then
   ensure_command fd fd-find
@@ -136,6 +169,12 @@ run_nvim_sync
 
 if [[ "$post_merge" -eq 1 ]]; then
   printf '\nHook post-merge ejecutado correctamente.\n'
+  printf 'Siguiente paso recomendado:\n'
+  printf '  cd %q\n' "$repo_root"
+  printf '  NVIM_APPNAME=%q XDG_CONFIG_HOME=%q nvim\n' "$repo_name" "$config_home"
+  printf 'Y dentro de Neovim:\n'
+  printf '  :Mason\n'
+  printf '  :TSUpdate\n'
   exit 0
 fi
 
@@ -145,6 +184,9 @@ nvim --version | head -n 1
 fd --version
 rg --version | head -n 1
 
-printf '\nListo. Si algun servidor LSP o parser no quedo instalado, abre Neovim y ejecuta:\n'
-printf '  :MasonInstallAll\n'
+printf '\nListo. Ahora ejecuta esto en consola:\n'
+printf '  cd %q\n' "$repo_root"
+printf '  NVIM_APPNAME=%q XDG_CONFIG_HOME=%q nvim\n' "$repo_name" "$config_home"
+printf 'Y dentro de Neovim ejecuta:\n'
+printf '  :Mason\n'
 printf '  :TSUpdate\n'
