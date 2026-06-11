@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+set -eu
+
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$repo_root"
+
+run_windows_setup() {
+  if command -v powershell.exe >/dev/null 2>&1; then
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\setup.ps1" -PostMerge
+    return
+  fi
+
+  if command -v pwsh.exe >/dev/null 2>&1; then
+    pwsh.exe -NoProfile -File "./scripts/setup.ps1" -PostMerge
+    return
+  fi
+
+  echo "No encontre PowerShell para ejecutar scripts/setup.ps1" >&2
+  exit 1
+}
+
+run_unix_setup() {
+  if command -v bash >/dev/null 2>&1; then
+    bash "./scripts/setup.sh" --post-merge
+    return
+  fi
+
+  if command -v sh >/dev/null 2>&1; then
+    sh "./scripts/setup.sh" --post-merge
+    return
+  fi
+
+  echo "No encontre shell para ejecutar scripts/setup.sh" >&2
+  exit 1
+}
+
+case "${OS:-}" in
+  Windows_NT)
+    run_windows_setup
+    ;;
+  *)
+    run_unix_setup
+    ;;
+esac

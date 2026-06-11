@@ -1,48 +1,147 @@
-# neovim
+# Neovim Config
 
-Configuración personal basada en **LazyVim** (Windows).
+Configuracion personal de Neovim basada en `LazyVim`, preparada para Windows y Linux.
 
-## Requisitos
+Incluye:
 
-```powershell
-winget install sharkdp.fd
-winget install BurntSushi.ripgrep.MSVC
-```
+- `snacks.nvim` para picker, explorer y busquedas
+- `blink.cmp` para autocompletado con `Tab`
+- `Mason` + LSP para `lua`, `ts/js`, `rust` y `python`
+- `nvim-treesitter` para parsers de sintaxis
+- `catppuccin` como tema base
+- automatizacion de post-`git pull` con hook local `post-merge`
 
-- Fuente terminal/Neovim: **JetBrainsMono NFM** (Nerd Font Mono, tamaño 14)
-- Instalar: `winget install DEVCOM.JetBrainsMonoNerdFont`
-- Sin Nerd Font los iconos se ven rotos (cuadrados o `?`)
-- Reiniciar terminal después de instalar fuentes o `fd` / `rg`
+## Que resuelve este repo
 
-## Estructura del repo
-
-```text
-init.lua                 → entrada
-lua/config/              → options, keymaps, lazy bootstrap
-lua/plugins/*.lua        → plugins (código)
-docs/                    → documentación (leer docs/README.md)
-lazyvim.json             → extras LazyVim (TypeScript, etc.)
-```
-
-## Plugins propios
-
-| Plugin | Archivo | Documentación |
-|--------|---------|---------------|
-| snacks.nvim | `snacks.lua` | [docs/snack.md](docs/snack.md) |
-| blink.cmp | `blink.lua` | [docs/blink-cmp.md](docs/blink-cmp.md) |
-| LSP + Mason | `lsp.lua` | [docs/LSP.md](docs/LSP.md) |
-| treesitter | `nvim-treesitter.lua` | [docs/treesitter.md](docs/treesitter.md) |
-| catppuccin | `catppuccin.lua` | [docs/catppuccin.md](docs/catppuccin.md) |
-
-## Primer uso (máquina nueva o tras clone)
-
-1. Sigue el prompt para el agente: **[docs/notes/prompt-crear-todo-con-un-click.md](docs/notes/prompt-crear-todo-con-un-click.md)**
-2. O manualmente:
+La idea es que puedas hacer esto:
 
 ```powershell
-cd ruta\al\proyecto
+cd C:\ruta\de\tu\proyecto
 nvim .
 ```
+
+Y tener listo:
+
+- busqueda de archivos con `<leader><space>`
+- grep con `<leader>/`
+- explorer con `<leader>e`
+- autocompletado con `Tab`
+- LSP con `gd`, `grr`, `grn`, `<leader>c l`, `:Mason`
+- iconos correctos usando `JetBrainsMono NFM`
+
+## Inicio rapido
+
+### Windows
+
+Primera vez o despues de clonar:
+
+```powershell
+git pull
+.\scripts\setup.ps1
+```
+
+### Linux
+
+Primera vez o despues de clonar:
+
+```bash
+git pull
+bash ./scripts/setup.sh
+```
+
+## Que hace el setup
+
+Los scripts de `setup` hacen lo siguiente:
+
+1. Validan que estas en la raiz del repo correcto.
+2. Comprueban dependencias base:
+   - `git`
+   - `nvim`
+   - `fd`
+   - `rg`
+3. En Windows intentan instalar tambien la fuente `JetBrainsMono NFM`.
+4. Configuran `git config core.hooksPath .githooks`.
+5. Ejecutan Neovim en modo headless para correr:
+   - `Lazy! sync`
+   - `MasonInstallAll`
+   - `TSUpdateSync`
+
+## Automatizacion tras git pull
+
+Git no ejecuta hooks versionados por si solo. Por eso el primer setup configura este repo para usar:
+
+```text
+.githooks/post-merge
+```
+
+Desde ese momento, cada `git pull` que termine en merge vuelve a lanzar el setup automaticamente.
+
+Flujo recomendado:
+
+```powershell
+git pull
+.\scripts\setup.ps1
+```
+
+Luego, en pulls futuros:
+
+```powershell
+git pull
+```
+
+Si en algun momento deja de funcionar el hook, ejecuta otra vez:
+
+```powershell
+.\scripts\setup.ps1
+```
+
+## Dependencias del sistema
+
+### Windows
+
+Instalacion manual equivalente:
+
+```powershell
+winget install Git.Git
+winget install Neovim.Neovim
+winget install sharkdp.fd
+winget install BurntSushi.ripgrep.MSVC
+winget install DEVCOM.JetBrainsMonoNerdFont
+```
+
+### Linux
+
+El script detecta `apt`, `dnf`, `pacman` o `zypper`. Si no encuentra un gestor soportado, tendras que instalar manualmente:
+
+- `git`
+- `neovim`
+- `fd` o `fdfind`
+- `ripgrep`
+
+## Fuente y terminal
+
+Para que los iconos se vean bien:
+
+- fuente terminal: `JetBrainsMono NFM`
+- tamano recomendado: `14`
+- opcion en Neovim: `vim.opt.guifont = "JetBrainsMono NFM:h14"`
+
+Si ves cuadrados, interrogaciones o iconos rotos:
+
+1. instala la Nerd Font
+2. reinicia la terminal
+3. vuelve a abrir Neovim
+
+## Primer arranque manual
+
+Si prefieres hacerlo sin script:
+
+```powershell
+cd ruta\al\repo
+nvim .
+```
+
+Luego dentro de Neovim:
 
 ```vim
 :Lazy sync
@@ -50,15 +149,155 @@ nvim .
 :TSUpdate
 ```
 
-Atajos: [docs/commandos-vim.md](docs/commandos-vim.md).
+## Atajos importantes
+
+`<leader>` es `Espacio`.
+
+| Atajo | Que hace |
+|-------|----------|
+| `<leader><space>` | Buscar archivos |
+| `<leader>/` | Buscar texto en el proyecto |
+| `<leader>e` | Explorador |
+| `<leader>,` | Buffers abiertos |
+| `<leader>c l` | Info LSP |
+| `gd` | Ir a definicion |
+| `grr` | Referencias |
+| `grn` | Renombrar simbolo |
+| `J` | Bajar 6 lineas |
+| `K` | Subir 6 lineas |
+| `Shift-h` | Buffer anterior |
+| `Shift-l` | Buffer siguiente |
+| `Tab` | Completar o siguiente sugerencia |
+
+Guia completa: [docs/commandos-vim.md](docs/commandos-vim.md)
+
+## LSP y lenguajes configurados
+
+Actualmente esta config asegura estos servidores via `mason-lspconfig`:
+
+| Servidor | Lenguaje |
+|----------|----------|
+| `lua_ls` | Lua |
+| `vtsls` | TypeScript / JavaScript |
+| `rust_analyzer` | Rust |
+| `pyright` | Python |
+
+Extras activos en `lazyvim.json`:
+
+- `lazyvim.plugins.extras.lang.typescript`
+
+## Estructura del repo
+
+```text
+init.lua
+lazyvim.json
+lazy-lock.json
+lua/
+  config/
+    lazy.lua
+    options.lua
+    keymaps.lua
+    autocmds.lua
+  plugins/
+    snacks.lua
+    blink.lua
+    lsp.lua
+    nvim-treesitter.lua
+    catppuccin.lua
+scripts/
+  setup.ps1
+  setup.sh
+.githooks/
+  post-merge
+docs/
+```
+
+## Plugins propios
+
+| Plugin | Archivo | Doc |
+|--------|---------|-----|
+| `snacks.nvim` | `lua/plugins/snacks.lua` | [docs/snack.md](docs/snack.md) |
+| `blink.cmp` | `lua/plugins/blink.lua` | [docs/blink-cmp.md](docs/blink-cmp.md) |
+| `LSP + Mason` | `lua/plugins/lsp.lua` | [docs/LSP.md](docs/LSP.md) |
+| `treesitter` | `lua/plugins/nvim-treesitter.lua` | [docs/treesitter.md](docs/treesitter.md) |
+| `catppuccin` | `lua/plugins/catppuccin.lua` | [docs/catppuccin.md](docs/catppuccin.md) |
+
+## Documentacion util
+
+| Archivo | Para que sirve |
+|---------|----------------|
+| [docs/README.md](docs/README.md) | indice general |
+| [docs/commandos-vim.md](docs/commandos-vim.md) | atajos del dia a dia |
+| [docs/comandos-notion.md](docs/comandos-notion.md) | guia larga para copiar a Notion |
+| [docs/LSP.md](docs/LSP.md) | LSP y servidores |
+| [docs/mason.md](docs/mason.md) | Mason |
+| [docs/treesitter.md](docs/treesitter.md) | parsers |
+| [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md) | errores frecuentes |
+| [docs/notes/prompt-crear-todo-con-un-click.md](docs/notes/prompt-crear-todo-con-un-click.md) | checklist largo de instalacion |
 
 ## Problemas frecuentes
 
-[docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md)
+### `fd` o `rg` no funcionan
 
-## Producción / mantenimiento
+- instala la herramienta que falte
+- cierra y abre la terminal
+- vuelve a ejecutar el setup
 
-1. No añadir `lua/plugins/example.lua` (plantilla LazyVim).
-2. Plugins nuevos → solo `lua/plugins/<nombre>.lua` + doc en `docs/`.
-3. No importar plugins en `init.lua` (ver [docs/notes/@notes.md](docs/notes/@notes.md)).
-4. Tras cambios: `:Lazy sync` y commit del repo.
+### Los iconos se ven mal
+
+- revisa que la terminal use `JetBrainsMono NFM`
+- reinicia la terminal despues de instalar la fuente
+
+### Treesitter falla al actualizar
+
+Prueba:
+
+```vim
+:Lazy sync
+:TSUpdate
+```
+
+Si persiste, mira [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md).
+
+### El hook no salta tras `git pull`
+
+Comprueba:
+
+```powershell
+git config --get core.hooksPath
+```
+
+Debe devolver:
+
+```text
+.githooks
+```
+
+Si no, vuelve a lanzar:
+
+```powershell
+.\scripts\setup.ps1
+```
+
+## Reglas para mantener esta config
+
+1. No anadir `lua/plugins/example.lua`.
+2. No importar plugins en `init.lua`; ahi solo debe vivir `require("config.lazy")`.
+3. Plugins nuevos: `lua/plugins/<nombre>.lua`.
+4. Documentacion nueva: en `docs/`, no en `lua/plugins/`.
+5. Tras cambios de plugins o tooling: `:Lazy sync`.
+
+## Estado esperado al terminar
+
+Al final de una instalacion sana deberias poder confirmar:
+
+- `nvim --version`
+- `fd --version`
+- `rg --version`
+- `:Lazy`
+- `:Mason`
+- `<leader><space>`
+- `<leader>/`
+- `<leader>e`
+
+Si alguno falla, empieza por [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md).
