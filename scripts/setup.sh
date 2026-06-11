@@ -111,7 +111,7 @@ install_packages() {
   case "$manager" in
     apt)
       use_sudo apt-get update
-      use_sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
+      use_sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
       ;;
     dnf)
       use_sudo dnf install -y "${packages[@]}"
