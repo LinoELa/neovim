@@ -49,6 +49,51 @@ git pull
 bash ./scripts/setup.sh
 ```
 
+### Docker
+
+Si entras a un contenedor y haces esto:
+
+```bash
+git pull https://github.com/LinoELa/neovim.git
+```
+
+el error es normal si no estas dentro de un repo Git ya clonado:
+
+```text
+fatal: not a git repository (or any of the parent directories): .git
+```
+
+Flujo correcto dentro del contenedor la primera vez:
+
+```bash
+cd /root
+git clone https://github.com/LinoELa/neovim.git
+cd neovim
+bash ./scripts/setup.sh
+```
+
+Si el repo ya existia dentro del contenedor:
+
+```bash
+cd /root/neovim
+git pull
+bash ./scripts/setup.sh
+```
+
+Importante:
+
+- el setup headless asume que la carpeta del repo se llama `nvim`
+- `cd /root/neovim` funciona
+- `cd /root/mi-carpeta-rara` no cargara esta config como app de Neovim
+
+Si no recuerdas donde estaba clonado:
+
+```bash
+find / -type d -name ".git" 2>/dev/null
+```
+
+Luego entra a la carpeta padre del `.git` encontrado y desde ahi ejecuta `git pull`.
+
 ## Que hace el setup
 
 Los scripts de `setup` hacen lo siguiente:
@@ -117,6 +162,46 @@ El script detecta `apt`, `dnf`, `pacman` o `zypper`. Si no encuentra un gestor s
 - `neovim`
 - `fd` o `fdfind`
 - `ripgrep`
+
+### Docker vs maquina real
+
+Este repo es una configuracion de Neovim. Puedes usarlo en dos contextos distintos:
+
+1. Dentro de un contenedor Linux, si quieres que Neovim viva ahi.
+2. En tu sistema real, que es lo normal si vas a editar desde tu propia terminal o editor.
+
+Rutas habituales:
+
+- Linux real: `~/.config/nvim`
+- Windows real: `%LOCALAPPDATA%\nvim`
+- Docker de pruebas: por ejemplo `/root/neovim` o `/root/.config/nvim`
+
+Si solo lo has clonado en `/root/neovim`, eso no instala automaticamente la config global de Neovim dentro del contenedor. Para usarla como config real dentro de Linux, lo correcto suele ser:
+
+```bash
+mkdir -p ~/.config
+git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
+bash ~/.config/nvim/scripts/setup.sh
+```
+
+Si ya lo clonaste en `/root/neovim` y quieres reutilizarlo como config real:
+
+```bash
+mkdir -p ~/.config
+mv /root/neovim ~/.config/nvim
+cd ~/.config/nvim
+bash ./scripts/setup.sh
+```
+
+Si ejecutaste `bash ./scripts/setup.sh` desde `/root/neovim` y te salio algo como esto:
+
+```text
+E492: Not an editor command: Lazy! sync
+E492: Not an editor command: MasonInstallAll
+E492: Not an editor command: TSUpdateSync
+```
+
+el problema era que Neovim no estaba cargando esta config al arrancar en headless. El setup actual ya fuerza la ruta correcta cuando el repo se llama `nvim`.
 
 ## Fuente y terminal
 

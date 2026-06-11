@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
+$repoName = Split-Path -Leaf $repoRoot
+$configHome = Split-Path -Parent $repoRoot
 
 function Write-Step {
   param([string]$Message)
@@ -116,7 +118,14 @@ function Configure-GitHooks {
 function Invoke-NvimStep {
   param([string[]]$Arguments)
 
+  if ($repoName -ne "nvim") {
+    throw "La carpeta del repo debe llamarse 'nvim' para que el setup headless cargue esta config automaticamente."
+  }
+
+  $previousXdg = $env:XDG_CONFIG_HOME
+  $env:XDG_CONFIG_HOME = $configHome
   & nvim @Arguments
+  $env:XDG_CONFIG_HOME = $previousXdg
   if ($LASTEXITCODE -ne 0) {
     throw "Fallo ejecutando: nvim $($Arguments -join ' ')"
   }
