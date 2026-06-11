@@ -1,220 +1,273 @@
 # Neovim Config
 
-Configuracion personal de Neovim basada en `LazyVim`, preparada para Windows y Linux.
+Configuración personal de Neovim basada en `LazyVim`.
+
+Está pensada principalmente para trabajar en:
+
+1. Docker / Linux, mi entorno principal de pruebas y configuración.
+2. Windows con WSL, mi segundo entorno más usado.
+3. Windows nativo, útil si quiero usar Neovim directamente desde PowerShell.
 
 Incluye:
 
-- `snacks.nvim` para picker, explorer y busquedas
-- `blink.cmp` para autocompletado con `Tab`
-- `Mason` + LSP para `lua`, `ts/js`, `rust` y `python`
-- `nvim-treesitter` para parsers de sintaxis
-- `catppuccin` como tema base
-- automatizacion de post-`git pull` con hook local `post-merge`
+- `LazyVim` como base.
+- `lazy.nvim` para gestionar plugins.
+- `snacks.nvim` para picker, explorer y búsquedas.
+- `blink.cmp` para autocompletado con `Tab`.
+- `Mason` + LSP para `lua`, `typescript/javascript`, `rust` y `python`.
+- `nvim-treesitter` para parsers de sintaxis.
+- `catppuccin` como tema base.
+- Hooks locales de Git para automatizar tareas después de `git pull`.
 
-## Que resuelve este repo
+---
 
-La idea es que puedas hacer esto:
+## 1. Uso principal: Docker / Linux
 
-```powershell
-cd C:\ruta\de\tu\proyecto
-nvim .
-```
+Este es el flujo recomendado cuando estoy dentro de un contenedor Linux.
 
-Y tener listo:
+### 1.1 Primera instalación
 
-- busqueda de archivos con `<leader><space>`
-- grep con `<leader>/`
-- explorer con `<leader>e`
-- autocompletado con `Tab`
-- LSP con `gd`, `grr`, `grn`, `<leader>c l`, `:Mason`
-- iconos correctos usando `JetBrainsMono NFM`
-
-## Inicio rapido
-
-### Windows
-
-Primera vez o despues de clonar:
-
-```powershell
-git pull
-.\scripts\setup.ps1
-```
-
-### Linux
-
-Primera vez o despues de clonar:
-
-```bash
-git pull
-bash ./scripts/setup.sh
-```
-
-### Docker
-
-1. #### Error normal si haces `git pull` fuera del repo
-
-Si entras al contenedor y ejecutas esto:
-
-
-```bash
-mkdir -p ~/.config
-git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
-nvim
-```
-
-Es lo mismo que arriba 
-
-```bash
-git pull https://github.com/LinoELa/neovim.git
-```
-
-La respuesta normal es:
-
-```text
-fatal: not a git repository (or any of the parent directories): .git
-```
-
-Eso significa que todavia no estas dentro de una carpeta clonada con `.git`.
-
-2. #### Primera instalacion dentro del contenedor
-
-Ejecuta esto paso a paso:
+Dentro del contenedor:
 
 ```bash
 cd /root
 git clone https://github.com/LinoELa/neovim.git
-cd neovim
-bash ./scripts/setup.sh
-```
-
-Respuesta esperada:
-
-- `Cloning into 'neovim'...`
-- instalacion de dependencias si faltan
-- sincronizacion de `Lazy`
-- al final, el script te dira que abras Neovim con un comando exacto
-
-3. #### Si el repo ya estaba clonado
-
-Ejecuta esto:
-
-```bash
 cd /root/neovim
-git pull
 bash ./scripts/setup.sh
 ```
 
-Respuesta esperada:
+El script debe encargarse de:
 
-- `Already up to date.` o descarga de cambios nuevos
-- despues, salida del script de setup
+- instalar dependencias base;
+- instalar `git`, `curl`, `ripgrep`, `fd`;
+- instalar compilador C para Treesitter;
+- instalar o corregir Neovim si la versión es antigua;
+- sincronizar plugins con `Lazy`;
+- configurar hooks locales de Git.
 
-4. #### Si no recuerdas donde estaba el repo
+Al terminar, el propio script imprimirá el comando exacto para abrir Neovim.
 
-Busca la carpeta Git:
-
-```bash
-find / -type d -name ".git" 2>/dev/null
-```
-
-Posible respuesta:
-
-```text
-/root/neovim/.git
-```
-
-Si sale una ruta como esa, entra a la carpeta padre:
-
-```bash
-cd /root/neovim
-git pull
-bash ./scripts/setup.sh
-```
-
-5. #### Que hacer cuando termine `setup.sh`
-
-El propio script imprimira en consola algo como esto:
+Normalmente será algo parecido a:
 
 ```bash
 cd /root/neovim
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
 ```
 
-Ejecuta ese comando.
-
-Dentro de Neovim, ejecuta:
+Dentro de Neovim puedes ejecutar:
 
 ```vim
+:Lazy
 :Mason
 :TSUpdate
+:checkhealth
 ```
 
-Respuesta esperada:
+### 1.2 Si el repo ya existe
 
-- `:Mason` abre el gestor de herramientas LSP
-- `:TSUpdate` instala o actualiza parsers de Treesitter
+```bash
+cd /root/neovim
+git pull
+bash ./scripts/setup.sh
+```
 
-6. #### Notas importantes
+### 1.3 Si no recuerdas dónde está el repo
 
-- el setup headless usa `NVIM_APPNAME` con el nombre real de la carpeta
-- `cd /root/neovim` funciona
-- `cd ~/.config/nvim` tambien funciona
-- si renombras la carpeta, el setup cargara esa config con ese nombre
+Busca carpetas Git:
 
-## Que hace el setup
+```bash
+find / -type d -name ".git" 2>/dev/null
+```
 
-Los scripts de `setup` hacen lo siguiente:
-
-1. Validan que estas en la raiz del repo correcto.
-2. Comprueban dependencias base:
-   - `git`
-   - `nvim`
-   - `fd`
-   - `rg`
-3. En Linux instalan tambien el compilador C necesario para `nvim-treesitter`.
-4. En Windows intentan instalar tambien la fuente `JetBrainsMono NFM`.
-5. Configuran `git config core.hooksPath .githooks`.
-6. Ejecutan Neovim en modo headless para correr:
-   - `Lazy! sync`
-7. Al terminar, imprimen en consola el siguiente paso exacto para abrir Neovim y rematar:
-   - `NVIM_APPNAME=<nombre-del-repo> XDG_CONFIG_HOME=<carpeta-padre> nvim`
-   - `:Mason`
-   - `:TSUpdate`
-
-## Automatizacion tras git pull
-
-Git no ejecuta hooks versionados por si solo. Por eso el primer setup configura este repo para usar:
+Si devuelve algo como:
 
 ```text
-.githooks/post-merge
+/root/neovim/.git
 ```
 
-Desde ese momento, cada `git pull` que termine en merge vuelve a lanzar el setup automaticamente.
+entra en la carpeta padre:
 
-Flujo recomendado:
+```bash
+cd /root/neovim
+git pull
+bash ./scripts/setup.sh
+```
+
+### 1.4 Error típico: usar `git pull` fuera del repo
+
+Esto está mal si todavía no has clonado el repo:
+
+```bash
+git pull https://github.com/LinoELa/neovim.git
+```
+
+Error esperado:
+
+```text
+fatal: not a git repository (or any of the parent directories): .git
+```
+
+Significa que estás fuera de una carpeta con `.git`.
+
+Primero clona:
+
+```bash
+cd /root
+git clone https://github.com/LinoELa/neovim.git
+cd /root/neovim
+bash ./scripts/setup.sh
+```
+
+### 1.5 Error típico: Neovim demasiado antiguo
+
+Si ves algo como:
+
+```text
+lazy.nvim requires Neovim >= 0.8.0
+```
+
+significa que el sistema está usando un Neovim antiguo.
+
+En Ubuntu puede pasar porque `apt install neovim` instala una versión vieja, por ejemplo `0.6.1`.
+
+El `setup.sh` debe evitar esto instalando Neovim moderno desde `.tar.gz`, no desde AppImage.
+
+No usar AppImage en Docker, porque suele fallar con:
+
+```text
+fuse: device not found
+```
+
+Comprobación manual:
+
+```bash
+which nvim
+nvim --version
+/usr/local/bin/nvim --version
+```
+
+La versión correcta debe ser `0.8.0` o superior.
+
+Idealmente:
+
+```text
+NVIM v0.12.x
+```
+
+### 1.6 Error típico: `:Lazy` o `:Mason` no existen
+
+Si dentro de Neovim aparece:
+
+```text
+E492: Not an editor command: Lazy
+E492: Not an editor command: Mason
+```
+
+puede ser por una de estas causas:
+
+1. Neovim es demasiado antiguo.
+2. LazyVim no está cargando.
+3. Estás abriendo otro `nvim`.
+4. La configuración está en una ruta distinta.
+
+Comandos útiles:
+
+```bash
+which nvim
+nvim --version
+echo $XDG_CONFIG_HOME
+```
+
+Dentro de Neovim:
+
+```vim
+:echo stdpath("config")
+```
+
+Para este repo, si está en `/root/neovim`, se usa así:
+
+```bash
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+```
+
+Así Neovim carga:
+
+```text
+/root/neovim/init.lua
+```
+
+---
+
+## 2. Segundo entorno: Windows con WSL
+
+Este flujo es recomendable si trabajo en Windows pero quiero un entorno Linux real.
+
+### 2.1 Instalar dependencias dentro de WSL
+
+En Ubuntu WSL:
+
+```bash
+sudo apt update
+sudo apt install -y git curl ripgrep fd-find build-essential
+```
+
+Después clona la configuración:
+
+```bash
+cd ~
+git clone https://github.com/LinoELa/neovim.git
+cd ~/neovim
+bash ./scripts/setup.sh
+```
+
+Abre Neovim:
+
+```bash
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=$HOME nvim
+```
+
+### 2.2 Usar la configuración como `~/.config/nvim`
+
+Si quieres que `nvim` cargue esta config sin variables:
+
+```bash
+mkdir -p ~/.config
+git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
+bash ~/.config/nvim/scripts/setup.sh
+nvim
+```
+
+Si ya la tenías en `~/neovim`:
+
+```bash
+mkdir -p ~/.config
+mv ~/neovim ~/.config/nvim
+cd ~/.config/nvim
+bash ./scripts/setup.sh
+nvim
+```
+
+---
+
+## 3. Windows nativo
+
+Usa esto si quieres trabajar directamente desde PowerShell.
+
+### 3.1 Instalación inicial
 
 ```powershell
-git pull
+git clone https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
+cd $env:LOCALAPPDATA\nvim
 .\scripts\setup.ps1
 ```
 
-Luego, en pulls futuros:
+Después abre:
 
 ```powershell
-git pull
+nvim .
 ```
 
-Si en algun momento deja de funcionar el hook, ejecuta otra vez:
-
-```powershell
-.\scripts\setup.ps1
-```
-
-## Dependencias del sistema
-
-### Windows
-
-Instalacion manual equivalente:
+### 3.2 Dependencias manuales equivalentes
 
 ```powershell
 winget install Git.Git
@@ -224,124 +277,213 @@ winget install BurntSushi.ripgrep.MSVC
 winget install DEVCOM.JetBrainsMonoNerdFont
 ```
 
-### Linux
-
-El script detecta `apt`, `dnf`, `pacman` o `zypper`. Si no encuentra un gestor soportado, tendras que instalar manualmente:
-
-- `git`
-- `neovim`
-- `fd` o `fdfind`
-- `ripgrep`
-
-### Docker vs maquina real
-
-Este repo es una configuracion de Neovim. Puedes usarlo en dos contextos distintos:
-
-1. Dentro de un contenedor Linux, si quieres que Neovim viva ahi.
-2. En tu sistema real, que es lo normal si vas a editar desde tu propia terminal o editor.
-
-Rutas habituales:
-
-- Linux real: `~/.config/nvim`
-- Windows real: `%LOCALAPPDATA%\nvim`
-- Docker de pruebas: por ejemplo `/root/neovim` o `/root/.config/nvim`
-
-Si solo lo has clonado en `/root/neovim`, eso no instala automaticamente la config global de Neovim dentro del contenedor. Para usarla como config real dentro de Linux, lo correcto suele ser:
-
-```bash
-mkdir -p ~/.config
-git clone https://github.com/LinoELa/neovim.git ~/.config/nvim
-bash ~/.config/nvim/scripts/setup.sh
-```
-
-Si ya lo clonaste en `/root/neovim` y quieres reutilizarlo como config real:
-
-```bash
-mkdir -p ~/.config
-mv /root/neovim ~/.config/nvim
-cd ~/.config/nvim
-bash ./scripts/setup.sh
-```
-
-Si ejecutaste `bash ./scripts/setup.sh` desde `/root/neovim` y te salio algo como esto:
+### 3.3 Ruta normal en Windows
 
 ```text
-E492: Not an editor command: Lazy! sync
-E492: Not an editor command: MasonInstallAll
-E492: Not an editor command: TSUpdateSync
+%LOCALAPPDATA%\nvim
 ```
 
-el problema era que Neovim no estaba cargando esta config al arrancar en headless. El setup actual ya fuerza la ruta correcta usando `NVIM_APPNAME` + `XDG_CONFIG_HOME`.
+Normalmente equivale a:
 
-## Fuente y terminal
+```text
+C:\Users\TU_USUARIO\AppData\Local\nvim
+```
 
-Para que los iconos se vean bien:
+---
 
-- fuente terminal: `JetBrainsMono NFM`
-- tamano recomendado: `14`
-- opcion en Neovim: `vim.opt.guifont = "JetBrainsMono NFM:h14"`
+## 4. Qué resuelve este repo
 
-Si ves cuadrados, interrogaciones o iconos rotos:
+La idea es poder abrir un proyecto con:
 
-1. instala la Nerd Font
-2. reinicia la terminal
-3. vuelve a abrir Neovim
-
-## Primer arranque manual
-
-Si prefieres hacerlo sin script:
-
-```powershell
-cd ruta\al\repo
+```bash
 nvim .
 ```
 
-Luego dentro de Neovim:
+y tener listo:
 
-```vim
-:Lazy sync
-:MasonInstallAll
-:TSUpdate
+- búsqueda de archivos con `<leader><space>`;
+- búsqueda de texto con `<leader>/`;
+- explorer con `<leader>e`;
+- autocompletado con `Tab`;
+- LSP con `gd`, `grr`, `grn`, `<leader>c l`;
+- gestión de herramientas con `:Mason`;
+- iconos correctos usando `JetBrainsMono NFM`.
+
+---
+
+## 5. Qué hace el setup
+
+Los scripts de setup hacen esto:
+
+1. Validan que estás en la raíz del repo correcto.
+2. Comprueban dependencias base:
+   - `git`;
+   - `curl`;
+   - `nvim`;
+   - `fd`;
+   - `rg`.
+3. En Linux instalan compilador C para `nvim-treesitter`.
+4. En Linux corrigen el caso `fd-find` / `fdfind`.
+5. En Linux evitan Neovim antiguo instalando versión moderna si hace falta.
+6. En Windows intentan instalar la fuente `JetBrainsMono NFM`.
+7. Configuran:
+   - `git config core.hooksPath .githooks`.
+8. Ejecutan Neovim en modo headless:
+   - `Lazy! sync`.
+9. Al terminar imprimen el siguiente paso exacto para abrir Neovim.
+
+---
+
+## 6. Automatización después de `git pull`
+
+Git no ejecuta hooks versionados por defecto.
+
+Por eso el setup configura este repo para usar:
+
+```text
+.githooks/post-merge
 ```
 
-## Atajos importantes
+Después del primer setup, un `git pull` que termine en merge puede lanzar el setup automáticamente.
+
+Flujo recomendado:
+
+```bash
+git pull
+bash ./scripts/setup.sh
+```
+
+En Windows:
+
+```powershell
+git pull
+.\scripts\setup.ps1
+```
+
+Si el hook deja de funcionar:
+
+```bash
+git config --get core.hooksPath
+```
+
+Debe devolver:
+
+```text
+.githooks
+```
+
+Si no, vuelve a lanzar el setup.
+
+---
+
+## 7. Dependencias del sistema
+
+### Linux / Docker
+
+Necesarias:
+
+- `git`
+- `curl`
+- `neovim`
+- `ripgrep`
+- `fd` o `fdfind`
+- `gcc` / `cc` / `clang`
+- `make`
+- `tar`
+- `gzip`
+
+En Ubuntu / Debian:
+
+```bash
+sudo apt update
+sudo apt install -y git curl ripgrep fd-find build-essential tar gzip
+```
+
+### Windows
+
+Necesarias:
+
+- Git
+- Neovim
+- fd
+- ripgrep
+- JetBrainsMono Nerd Font
+
+Instalación por `winget`:
+
+```powershell
+winget install Git.Git
+winget install Neovim.Neovim
+winget install sharkdp.fd
+winget install BurntSushi.ripgrep.MSVC
+winget install DEVCOM.JetBrainsMonoNerdFont
+```
+
+---
+
+## 8. Fuente y terminal
+
+Para que los iconos se vean bien:
+
+- fuente: `JetBrainsMono NFM`;
+- tamaño recomendado: `14`.
+
+Si ves cuadrados, interrogaciones o iconos rotos:
+
+1. instala la Nerd Font;
+2. reinicia la terminal;
+3. vuelve a abrir Neovim.
+
+---
+
+## 9. Atajos importantes
 
 `<leader>` es `Espacio`.
 
-| Atajo | Que hace |
-|-------|----------|
+| Atajo | Qué hace |
+|---|---|
 | `<leader><space>` | Buscar archivos |
 | `<leader>/` | Buscar texto en el proyecto |
 | `<leader>e` | Explorador |
 | `<leader>,` | Buffers abiertos |
 | `<leader>c l` | Info LSP |
-| `gd` | Ir a definicion |
+| `gd` | Ir a definición |
 | `grr` | Referencias |
-| `grn` | Renombrar simbolo |
-| `J` | Bajar 6 lineas |
-| `K` | Subir 6 lineas |
+| `grn` | Renombrar símbolo |
+| `J` | Bajar 6 líneas |
+| `K` | Subir 6 líneas |
 | `Shift-h` | Buffer anterior |
 | `Shift-l` | Buffer siguiente |
 | `Tab` | Completar o siguiente sugerencia |
 
-Guia completa: [docs/commandos-vim.md](docs/commandos-vim.md)
+Guía completa:
 
-## LSP y lenguajes configurados
+```text
+docs/commandos-vim.md
+```
 
-Actualmente esta config asegura estos servidores via `mason-lspconfig`:
+---
+
+## 10. LSP y lenguajes configurados
+
+Servidores configurados con `mason-lspconfig`:
 
 | Servidor | Lenguaje |
-|----------|----------|
+|---|---|
 | `lua_ls` | Lua |
 | `vtsls` | TypeScript / JavaScript |
 | `rust_analyzer` | Rust |
 | `pyright` | Python |
 
-Extras activos en `lazyvim.json`:
+Extra activo en `lazyvim.json`:
 
-- `lazyvim.plugins.extras.lang.typescript`
+```text
+lazyvim.plugins.extras.lang.typescript
+```
 
-## Estructura del repo
+---
+
+## 11. Estructura del repo
 
 ```text
 init.lua
@@ -367,58 +509,100 @@ scripts/
 docs/
 ```
 
-## Plugins propios
+---
 
-| Plugin | Archivo | Doc |
-|--------|---------|-----|
-| `snacks.nvim` | `lua/plugins/snacks.lua` | [docs/snack.md](docs/snack.md) |
-| `blink.cmp` | `lua/plugins/blink.lua` | [docs/blink-cmp.md](docs/blink-cmp.md) |
-| `LSP + Mason` | `lua/plugins/lsp.lua` | [docs/LSP.md](docs/LSP.md) |
-| `treesitter` | `lua/plugins/nvim-treesitter.lua` | [docs/treesitter.md](docs/treesitter.md) |
-| `catppuccin` | `lua/plugins/catppuccin.lua` | [docs/catppuccin.md](docs/catppuccin.md) |
+## 12. Plugins propios
 
-## Documentacion util
+| Plugin | Archivo | Documentación |
+|---|---|---|
+| `snacks.nvim` | `lua/plugins/snacks.lua` | `docs/snack.md` |
+| `blink.cmp` | `lua/plugins/blink.lua` | `docs/blink-cmp.md` |
+| `LSP + Mason` | `lua/plugins/lsp.lua` | `docs/LSP.md` |
+| `treesitter` | `lua/plugins/nvim-treesitter.lua` | `docs/treesitter.md` |
+| `catppuccin` | `lua/plugins/catppuccin.lua` | `docs/catppuccin.md` |
 
-| Archivo | Para que sirve |
-|---------|----------------|
-| [docs/README.md](docs/README.md) | indice general |
-| [docs/commandos-vim.md](docs/commandos-vim.md) | atajos del dia a dia |
-| [docs/comandos-notion.md](docs/comandos-notion.md) | guia larga para copiar a Notion |
-| [docs/LSP.md](docs/LSP.md) | LSP y servidores |
-| [docs/mason.md](docs/mason.md) | Mason |
-| [docs/treesitter.md](docs/treesitter.md) | parsers |
-| [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md) | errores frecuentes |
-| [docs/notes/prompt-crear-todo-con-un-click.md](docs/notes/prompt-crear-todo-con-un-click.md) | checklist largo de instalacion |
+---
 
-## Problemas frecuentes
+## 13. Documentación útil
+
+| Archivo | Para qué sirve |
+|---|---|
+| `docs/README.md` | Índice general |
+| `docs/commandos-vim.md` | Atajos del día a día |
+| `docs/comandos-notion.md` | Guía larga para copiar a Notion |
+| `docs/LSP.md` | LSP y servidores |
+| `docs/mason.md` | Mason |
+| `docs/treesitter.md` | Parsers |
+| `docs/notas-problemas-soluciones.md` | Errores frecuentes |
+| `docs/notes/prompt-crear-todo-con-un-click.md` | Checklist largo de instalación |
+
+---
+
+## 14. Problemas frecuentes
 
 ### `fd` o `rg` no funcionan
 
-- instala la herramienta que falte
-- cierra y abre la terminal
-- vuelve a ejecutar el setup
+Comprueba:
 
-### Los iconos se ven mal
+```bash
+fd --version
+rg --version
+```
 
-- revisa que la terminal use `JetBrainsMono NFM`
-- reinicia la terminal despues de instalar la fuente
+En Ubuntu, si existe `fdfind` pero no `fd`:
+
+```bash
+mkdir -p ~/.local/bin
+ln -sf "$(command -v fdfind)" ~/.local/bin/fd
+export PATH="$HOME/.local/bin:$PATH"
+```
 
 ### Treesitter falla al actualizar
 
-Prueba:
+Ejecuta:
 
 ```vim
 :Lazy sync
 :TSUpdate
 ```
 
-Si persiste, mira [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md).
+Si sigue fallando, comprueba compilador C:
+
+```bash
+cc --version
+gcc --version
+make --version
+```
+
+En Ubuntu:
+
+```bash
+sudo apt install -y build-essential
+```
+
+### Mason no abre
+
+Dentro de Neovim:
+
+```vim
+:Lazy
+```
+
+Si `:Lazy` tampoco existe, la config no está cargando o Neovim es antiguo.
+
+Comprueba:
+
+```bash
+nvim --version
+```
+
+Debe ser `0.8.0` o superior.
 
 ### El hook no salta tras `git pull`
 
 Comprueba:
 
-```powershell
+```bash
 git config --get core.hooksPath
 ```
 
@@ -428,31 +612,63 @@ Debe devolver:
 .githooks
 ```
 
-Si no, vuelve a lanzar:
+Si no:
 
-```powershell
-.\scripts\setup.ps1
+```bash
+git config core.hooksPath .githooks
 ```
 
-## Reglas para mantener esta config
+---
 
-1. No anadir `lua/plugins/example.lua`.
-2. No importar plugins en `init.lua`; ahi solo debe vivir `require("config.lazy")`.
-3. Plugins nuevos: `lua/plugins/<nombre>.lua`.
-4. Documentacion nueva: en `docs/`, no en `lua/plugins/`.
-5. Tras cambios de plugins o tooling: `:Lazy sync`.
+## 15. Reglas para mantener esta config
 
-## Estado esperado al terminar
+1. No añadir `lua/plugins/example.lua`.
+2. No importar plugins en `init.lua`.
+3. `init.lua` solo debe cargar:
+   ```lua
+   require("config.lazy")
+   ```
+4. Plugins nuevos en:
+   ```text
+   lua/plugins/<nombre>.lua
+   ```
+5. Documentación nueva en:
+   ```text
+   docs/
+   ```
+6. Tras cambios de plugins o tooling:
+   ```vim
+   :Lazy sync
+   ```
 
-Al final de una instalacion sana deberias poder confirmar:
+---
 
-- `nvim --version`
-- `fd --version`
-- `rg --version`
-- `:Lazy`
-- `:Mason`
-- `<leader><space>`
-- `<leader>/`
-- `<leader>e`
+## 16. Estado esperado al terminar
 
-Si alguno falla, empieza por [docs/notas-problemas-soluciones.md](docs/notas-problemas-soluciones.md).
+Una instalación sana debe cumplir:
+
+```bash
+nvim --version
+fd --version
+rg --version
+```
+
+Dentro de Neovim:
+
+```vim
+:Lazy
+:Mason
+:checkhealth
+```
+
+Atajos que deben funcionar:
+
+- `<leader><space>`;
+- `<leader>/`;
+- `<leader>e`.
+
+Si algo falla, empieza por:
+
+```text
+docs/notas-problemas-soluciones.md
+```
