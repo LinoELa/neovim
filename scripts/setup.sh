@@ -22,6 +22,7 @@ set -euo pipefail
 #   8. Si Neovim es antiguo, instala Neovim moderno desde tar.gz.
 #   9. Sincroniza plugins con lazy.nvim.
 #   10. Instala herramientas base de Mason para LSP, formatters y linters.
+#   11. Instala tree-sitter-cli para nvim-treesitter.
 #
 # Uso:
 #   ./scripts/setup.sh
@@ -201,27 +202,37 @@ assert_repo_shape() {
 ensure_utf8_locale() {
   step "Comprobando locale UTF-8"
 
-  if [[ "${LANG:-}" == *"UTF-8"* || "${LC_ALL:-}" == *"UTF-8"* || "${LC_CTYPE:-}" == *"UTF-8"* ]]; then
-    info "Locale UTF-8 ya configurado."
+  if [[ "${LANG:-}" == *"UTF-8"* || "${LANG:-}" == *"utf8"* || "${LC_ALL:-}" == *"UTF-8"* || "${LC_ALL:-}" == *"utf8"* || "${LC_CTYPE:-}" == *"UTF-8"* || "${LC_CTYPE:-}" == *"utf8"* ]]; then
+    info "Locale UTF-8 ya configurado: LANG=${LANG:-}, LC_ALL=${LC_ALL:-}, LC_CTYPE=${LC_CTYPE:-}"
     return
   fi
 
-  warn "Locale UTF-8 no está configurado. Neovim puede mostrar caracteres raros."
+  warn "Locale UTF-8 no está configurado. Intentando corregirlo."
 
   if have apt-get; then
     install_packages locales
     use_sudo locale-gen en_US.UTF-8 || true
   fi
 
-  export LANG=en_US.UTF-8
-  export LC_ALL=en_US.UTF-8
+  local selected_locale=""
 
-  if [[ -f "$HOME/.bashrc" ]]; then
-    grep -q '^export LANG=en_US.UTF-8$' "$HOME/.bashrc" || echo 'export LANG=en_US.UTF-8' >> "$HOME/.bashrc"
-    grep -q '^export LC_ALL=en_US.UTF-8$' "$HOME/.bashrc" || echo 'export LC_ALL=en_US.UTF-8' >> "$HOME/.bashrc"
+  if locale -a 2>/dev/null | grep -qi '^en_US\.utf8$'; then
+    selected_locale="en_US.UTF-8"
+  elif locale -a 2>/dev/null | grep -qi '^C\.utf8$'; then
+    selected_locale="C.UTF-8"
+  else
+    selected_locale="en_US.UTF-8"
   fi
 
-  info "Locale UTF-8 configurado para esta sesión."
+  export LANG="$selected_locale"
+  export LC_ALL="$selected_locale"
+
+  if [[ -f "$HOME/.bashrc" ]]; then
+    grep -q '^export LANG=' "$HOME/.bashrc" || echo "export LANG=$selected_locale" >> "$HOME/.bashrc"
+    grep -q '^export LC_ALL=' "$HOME/.bashrc" || echo "export LC_ALL=$selected_locale" >> "$HOME/.bashrc"
+  fi
+
+  info "Locale configurado: LANG=$LANG, LC_ALL=$LC_ALL"
 }
 
 # ------------------------------------------------------------------------------
@@ -482,6 +493,7 @@ ensure_mason_tools() {
   nvim_cmd="$(resolved_nvim)"
 
   local mason_tools=(
+    tree-sitter-cli
     lua-language-server
     stylua
     typescript-language-server
@@ -501,13 +513,94 @@ ensure_mason_tools() {
   info "Usando Neovim: $nvim_cmd"
   info "Herramientas Mason: ${mason_tools[*]}"
 
-  # Primero debe haberse ejecutado Lazy! sync.
-  # Si Mason todavía no está disponible, este comando fallará.
+  local mason_script
+  mason_script="$(mktemp)"
+
+  cat > "$mason_script" <<'EOF'
+local tools = {
+  "tree-sitter-cli",
+  "lua-language-server",
+  "stylua",
+  "typescript-language-server",
+  "eslint-lsp",
+  "prettierd",
+  "prettier",
+  "json-lsp",
+  "yaml-language-server",
+  "dockerls",
+  "docker-compose-language-service",
+  "bash-language-server",
+  "shellcheck",
+  "shfmt",
+  "pyright",
+}
+
+local ok_registry, registry = pcall(require, "mason-registry")
+if not ok_registry then
+  vim.api.nvim_err_writeln("No se pudo cargar mason-registry. Revisa que mason.nvim esté instalado.")
+  vim.cmd("cquit")
+end
+
+local function install_tools()
+  local failed = {}
+
+  for _, name in ipairs(tools) do
+    local ok_pkg, pkg = pcall(registry.get_package, name)
+
+    if not ok_pkg then
+      table.insert(failed, name .. " (no existe en Mason registry)")
+    elseif not pkg:is_installed() then
+      print("Instalando " .. name)
+      pkg:install()
+    else
+      print(name .. " ya instalado")
+    end
+  end
+
+  local completed = vim.wait(600000, function()
+    for _, name in ipairs(tools) do
+      local ok_pkg, pkg = pcall(registry.get_package, name)
+      if ok_pkg and pkg:is_installing() then
+        return false
+      end
+    end
+    return true
+  end, 1000)
+
+  if not completed then
+    vim.api.nvim_err_writeln("Timeout instalando herramientas Mason.")
+    vim.cmd("cquit")
+  end
+
+  for _, name in ipairs(tools) do
+    local ok_pkg, pkg = pcall(registry.get_package, name)
+    if ok_pkg and not pkg:is_installed() then
+      table.insert(failed, name)
+    end
+  end
+
+  if #failed > 0 then
+    vim.api.nvim_err_writeln("Fallaron herramientas Mason: " .. table.concat(failed, ", "))
+    vim.cmd("cquit")
+  end
+
+  vim.cmd("qa")
+end
+
+registry.refresh(function()
+  install_tools()
+end)
+EOF
+
+  # No usamos :MasonInstall porque en algunos arranques headless puede no existir todavía.
+  # Usamos mason-registry directamente y esperamos a que terminen las instalaciones.
   NVIM_APPNAME="$REPO_NAME" \
   XDG_CONFIG_HOME="$CONFIG_HOME" \
   "$nvim_cmd" --headless \
-    "+MasonInstall ${mason_tools[*]}" \
-    "+qa"
+    "+silent! Lazy load mason.nvim" \
+    -l "$mason_script"
+
+  rm -f "$mason_script"
 }
 
 # ------------------------------------------------------------------------------
@@ -549,7 +642,7 @@ print_next_steps() {
   printf '  :TSUpdate\n'
   printf '  :checkhealth\n'
   printf '\nHerramientas Mason instaladas automáticamente por el setup:\n'
-  printf '  dockerls, docker-compose-language-service, yaml-language-server, json-lsp\n'
+  printf '  tree-sitter-cli, dockerls, docker-compose-language-service, yaml-language-server, json-lsp\n'
   printf '  typescript-language-server, eslint-lsp, prettier, prettierd\n'
   printf '  bash-language-server, shellcheck, shfmt, lua-language-server, stylua, pyright\n'
 }

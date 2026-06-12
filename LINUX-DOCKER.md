@@ -51,10 +51,16 @@ cd /root
 git clone --single-branch -b linux-docker-2.0 https://github.com/LinoELa/neovim.git
 cd /root/neovim
 
+chmod +x ./scripts/setup.sh
 bash ./scripts/setup.sh
 
-NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root /usr/local/bin/nvim
 ```
+
+> Nota: se usa `NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root` porque el repositorio está en `/root/neovim`.
+> Así Neovim carga `/root/neovim/init.lua` como configuración.
+>
+> También se usa `/usr/local/bin/nvim` porque el setup instala ahí la versión moderna de Neovim cuando la del sistema es antigua.
 
 Dentro de Neovim comprueba:
 
@@ -215,7 +221,7 @@ El script se encarga de:
 Después del setup, abre Neovim así:
 
 ```bash
-NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root /usr/local/bin/nvim
 ```
 
 Ese comando hace que Neovim cargue esta configuración:
@@ -304,7 +310,7 @@ nvim
 o, si estás usando `/root/neovim` dentro de Docker:
 
 ```bash
-NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root /usr/local/bin/nvim
 ```
 
 ---
@@ -517,7 +523,7 @@ Dentro de Neovim:
 Para Docker con repo en `/root/neovim`:
 
 ```bash
-NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root /usr/local/bin/nvim
 ```
 
 ---
