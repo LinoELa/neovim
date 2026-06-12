@@ -21,6 +21,7 @@ set -euo pipefail
 #   7. Comprueba la versión real de Neovim.
 #   8. Si Neovim es antiguo, instala Neovim moderno desde tar.gz.
 #   9. Sincroniza plugins con lazy.nvim.
+#   10. Instala herramientas base de Mason para LSP, formatters y linters.
 #
 # Uso:
 #   ./scripts/setup.sh
@@ -469,6 +470,46 @@ run_nvim_sync() {
   "$nvim_cmd" --headless "+Lazy! sync" "+qa"
 }
 
+
+# ------------------------------------------------------------------------------
+# Herramientas base de Mason
+# ------------------------------------------------------------------------------
+
+ensure_mason_tools() {
+  step "Instalando herramientas base de Mason"
+
+  local nvim_cmd
+  nvim_cmd="$(resolved_nvim)"
+
+  local mason_tools=(
+    lua-language-server
+    stylua
+    typescript-language-server
+    eslint-lsp
+    prettierd
+    prettier
+    json-lsp
+    yaml-language-server
+    dockerls
+    docker-compose-language-service
+    bash-language-server
+    shellcheck
+    shfmt
+    pyright
+  )
+
+  info "Usando Neovim: $nvim_cmd"
+  info "Herramientas Mason: ${mason_tools[*]}"
+
+  # Primero debe haberse ejecutado Lazy! sync.
+  # Si Mason todavía no está disponible, este comando fallará.
+  NVIM_APPNAME="$REPO_NAME" \
+  XDG_CONFIG_HOME="$CONFIG_HOME" \
+  "$nvim_cmd" --headless \
+    "+MasonInstall ${mason_tools[*]}" \
+    "+qa"
+}
+
 # ------------------------------------------------------------------------------
 # Reporte final
 # ------------------------------------------------------------------------------
@@ -507,6 +548,10 @@ print_next_steps() {
   printf '  :Mason\n'
   printf '  :TSUpdate\n'
   printf '  :checkhealth\n'
+  printf '\nHerramientas Mason instaladas automáticamente por el setup:\n'
+  printf '  dockerls, docker-compose-language-service, yaml-language-server, json-lsp\n'
+  printf '  typescript-language-server, eslint-lsp, prettier, prettierd\n'
+  printf '  bash-language-server, shellcheck, shfmt, lua-language-server, stylua, pyright\n'
 }
 
 # ------------------------------------------------------------------------------
@@ -521,6 +566,7 @@ ensure_base_dependencies
 configure_git_hooks
 ensure_neovim_version
 run_nvim_sync
+ensure_mason_tools
 
 if [[ "$POST_MERGE" -eq 1 ]]; then
   printf '\nHook post-merge ejecutado correctamente.\n'
