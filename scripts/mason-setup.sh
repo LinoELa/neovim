@@ -109,8 +109,9 @@ registry.refresh(function()
 end)
 EOF
 
+
 NVIM_APPNAME="$NVIM_APPNAME" \
 XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
 "$NVIM_BIN" --headless \
-  "+Lazy load mason.nvim" \
+  "+lua require('lazy').load({ plugins = { 'mason.nvim' } })" \
   -l "$MASON_SCRIPT"
