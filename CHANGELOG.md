@@ -1,19 +1,19 @@
 # Changelog
 
-## linux-docker-2.0
+## linux-docker-2.1
 
 Fecha de referencia: 2026-06-19
 
 Estado de la rama:
-- Esta rama quedó fijada de nuevo en el commit `df4e14bd30e8975b221f98bf3183a17b3c39497d`.
-- Se mantiene como base de Docker/Linux 2.0.
+- Esta rama fue creada desde el commit `df4e14bd30e8975b221f98bf3183a17b3c39497d`.
+- Se mantiene como variante Docker/Linux 2.1 centrada en Mason.
 
 Qué incluye:
-- Ajustes del `scripts/setup.sh` para mejorar la configuración de locale UTF-8.
-- Soporte relacionado con `tree-sitter-cli` dentro del flujo de setup existente.
-- Documentación y estructura base ya presentes hasta ese commit.
+- Todo lo que ya existía en `df4e14bd30e8975b221f98bf3183a17b3c39497d`.
+- `scripts/mason-setup.sh` para instalar herramientas de desarrollo desde Mason en modo headless.
+- `scripts/mason.md` con la explicación de uso.
+- La corrección del comando de carga de plugins en `mason-setup.sh`.
 
 Qué no incluye:
-- No incluye la rama separada de Mason.
-- No incluye `scripts/mason-setup.sh`.
-- No incluye los commits posteriores descartados de `lazygit`, utilidades extra o cambios adicionales fuera de este punto base.
+- No incluye los commits intermedios descartados de `lazygit`, dependencias extra del setup o ajustes ajenos a Mason.
+- No redefine la base de `linux-docker-2.0`; solo añade la capa específica de Mason sobre ese punto.
