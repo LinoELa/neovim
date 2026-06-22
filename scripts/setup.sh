@@ -14,7 +14,7 @@ set -euo pipefail
 # Qué hace:
 #   1. Valida que el repo tenga la estructura esperada.
 #   2. Configura hooks locales de Git si existe .githooks.
-#   3. Instala dependencias base: git, curl, tar, gzip, ripgrep, fd.
+#   3. Instala dependencias base: git, curl, tar, gzip, ripgrep, fd y lazygit.
 #   4. Instala compilador C y herramientas de build para Treesitter y LSP.
 #   5. Corrige el caso de Ubuntu, donde fd se instala como fdfind.
 #   6. Configura locale UTF-8 si está vacío o mal definido.
@@ -151,6 +151,63 @@ ensure_command() {
   if ! have "$command_name"; then
     fail "No encuentro '$command_name' tras instalar: ${packages[*]}"
   fi
+}
+
+ensure_lazygit() {
+  if have lazygit; then
+    info "lazygit ya está disponible."
+    return
+  fi
+
+  step "Instalando lazygit"
+
+  ensure_command curl curl
+  ensure_command tar tar
+  ensure_command gzip gzip
+
+  local arch
+  local lazygit_arch
+  local version
+  local tmpdir
+
+  arch="$(uname -m)"
+
+  case "$arch" in
+    x86_64|amd64)
+      lazygit_arch="x86_64"
+      ;;
+    aarch64|arm64)
+      lazygit_arch="arm64"
+      ;;
+    *)
+      warn "Arquitectura no soportada para auto-instalar lazygit: $arch. Se omite."
+      return
+      ;;
+  esac
+
+  version="$(
+    curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
+      | grep -Po '"tag_name":\s*"v\K[^"]+'
+  )"
+
+  if [[ -z "$version" ]]; then
+    fail "No pude obtener la versión más reciente de lazygit."
+  fi
+
+  tmpdir="$(mktemp -d)"
+  trap 'rm -rf "$tmpdir"' RETURN
+
+  curl -fLo "$tmpdir/lazygit.tar.gz" \
+    "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${version}_Linux_${lazygit_arch}.tar.gz"
+
+  tar -C "$tmpdir" -xf "$tmpdir/lazygit.tar.gz" lazygit
+  use_sudo install -m 0755 "$tmpdir/lazygit" /usr/local/bin/lazygit
+
+  if ! have lazygit; then
+    fail "No encuentro 'lazygit' tras instalarlo en /usr/local/bin."
+  fi
+
+  info "lazygit instalado: $(lazygit --version | head -n 1)"
 }
 
 # ------------------------------------------------------------------------------
@@ -452,7 +509,10 @@ ensure_base_dependencies() {
 
   ensure_command git git
   ensure_command curl curl
+  ensure_command tar tar
+  ensure_command gzip gzip
   ensure_command rg ripgrep
+  ensure_lazygit
 
   if have apt-get; then
     ensure_command fd fd-find
@@ -611,6 +671,7 @@ print_versions() {
   step "Versiones detectadas"
 
   git --version || true
+  lazygit --version || true
 
   local nvim_cmd
   nvim_cmd="$(resolved_nvim)"
