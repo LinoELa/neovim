@@ -2,16 +2,16 @@
 
 Configuración personal de Neovim basada en `LazyVim`.
 
-Versión principal usada actualmente:
+Rama principal usada actualmente:
 
 ```text
-version-1.0
+develop
 ```
 
 Repositorio:
 
 ```text
-https://github.com/LinoELa/neovim/tree/version-1.0
+https://github.com/LinoELa/neovim/tree/develop
 ```
 
 Esta configuración está pensada principalmente para trabajar en:
@@ -33,7 +33,33 @@ Incluye:
 
 ---
 
-## 1. Instalación principal en Docker / Linux
+## Uso e instalación en Docker / Linux
+
+### Uso de ramas Linux / Docker
+
+La idea de esta estructura es separar cada cambio grande en su propia rama y usar `develop` como rama integradora.
+
+Orden recomendado:
+
+1. Primero prueba `linux-docker-2.0`, que es la base estable para Linux / Docker.
+2. Si eso funciona bien, prueba `linux-docker-2.1`, que aÃ±ade la parte de Mason.
+3. Si eso tambiÃ©n funciona bien, prueba `linux-docker-2.2-lazygit`, que aÃ±ade solo la auto-instalaciÃ³n de `lazygit`.
+4. Cuando quieras usar todo junto, usa `develop`, que es la rama que integra Linux / Docker completo.
+
+Resumen de ramas:
+
+- `prod`: base estable.
+- `linux-docker-2.0`: base Linux / Docker.
+- `linux-docker-2.1`: capa de Mason.
+- `linux-docker-2.2-lazygit`: capa de auto-instalaciÃ³n de `lazygit`.
+- `develop`: integraciÃ³n de todo lo anterior para Linux / Docker.
+
+Nomenclatura prevista:
+
+- `develop` queda reservado ahora para Linux / Docker.
+- Si mÃ¡s adelante se separa el flujo de Windows, la rama equivalente serÃ¡ `develop-windows`.
+
+---
 
 ### Configuracion Rapida Docker - Linux 
 
@@ -44,7 +70,7 @@ apt update
 apt install curl git -y
 
 cd /root
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
 cd /root/neovim
 
 bash ./scripts/setup.sh
@@ -130,13 +156,13 @@ Debe salir:
 La rama usada actualmente es:
 
 ```text
-version-1.0
+develop
 ```
 
 Clona esa rama concreta:
 
 ```bash
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
 ```
 
 Esto crea la carpeta:
@@ -160,7 +186,7 @@ git branch
 Debe aparecer:
 
 ```text
-* version-1.0
+* develop
 ```
 
 ---
@@ -225,7 +251,7 @@ apt update
 apt install curl git -y
 
 cd /root
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
 cd /root/neovim
 
 bash ./scripts/setup.sh
@@ -307,7 +333,7 @@ Primero clona:
 
 ```bash
 cd /root
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
 cd /root/neovim
 bash ./scripts/setup.sh
 ```
@@ -439,7 +465,7 @@ Después clona la rama correcta:
 
 ```bash
 cd ~
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
 cd ~/neovim
 bash ./scripts/setup.sh
 ```
@@ -458,7 +484,7 @@ Si quieres que `nvim` cargue esta config sin variables:
 
 ```bash
 mkdir -p ~/.config
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git ~/.config/nvim
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git ~/.config/nvim
 bash ~/.config/nvim/scripts/setup.sh
 nvim
 ```
@@ -482,7 +508,7 @@ Usa esto si quieres trabajar directamente desde PowerShell.
 ### 8.1 Instalación inicial
 
 ```powershell
-git clone --single-branch -b version-1.0 https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
+git clone --single-branch -b develop https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
 cd $env:LOCALAPPDATA\nvim
 .\scripts\setup.ps1
 ```
