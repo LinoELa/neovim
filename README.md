@@ -5,13 +5,13 @@ Configuración personal de Neovim basada en `LazyVim`.
 Rama principal usada actualmente:
 
 ```text
-develop
+develop-linux-docker
 ```
 
 Repositorio:
 
 ```text
-https://github.com/LinoELa/neovim/tree/develop
+https://github.com/LinoELa/neovim/tree/develop-linux-docker
 ```
 
 Esta configuración está pensada principalmente para trabajar en:
@@ -37,14 +37,14 @@ Incluye:
 
 ### Uso de ramas Linux / Docker
 
-La idea de esta estructura es separar cada cambio grande en su propia rama y usar `develop` como rama integradora.
+La idea de esta estructura es separar cada cambio grande en su propia rama y usar `develop-linux-docker` como rama integradora.
 
 Orden recomendado:
 
 1. Primero prueba `linux-docker-2.0`, que es la base estable para Linux / Docker.
 2. Si eso funciona bien, prueba `linux-docker-2.1`, que aÃ±ade la parte de Mason.
 3. Si eso tambiÃ©n funciona bien, prueba `linux-docker-2.2-lazygit`, que aÃ±ade solo la auto-instalaciÃ³n de `lazygit`.
-4. Cuando quieras usar todo junto, usa `develop`, que es la rama que integra Linux / Docker completo.
+4. Cuando quieras usar todo junto, usa `develop-linux-docker`, que es la rama que integra Linux / Docker completo.
 
 Resumen de ramas:
 
@@ -52,11 +52,11 @@ Resumen de ramas:
 - `linux-docker-2.0`: base Linux / Docker.
 - `linux-docker-2.1`: capa de Mason.
 - `linux-docker-2.2-lazygit`: capa de auto-instalaciÃ³n de `lazygit`.
-- `develop`: integraciÃ³n de todo lo anterior para Linux / Docker.
+- `develop-linux-docker`: integraciÃ³n de todo lo anterior para Linux / Docker.
 
 Nomenclatura prevista:
 
-- `develop` queda reservado ahora para Linux / Docker.
+- `develop-linux-docker` queda reservado ahora para Linux / Docker.
 - Si mÃ¡s adelante se separa el flujo de Windows, la rama equivalente serÃ¡ `develop-windows`.
 
 ---
@@ -70,7 +70,7 @@ apt update
 apt install curl git -y
 
 cd /root
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git
 cd /root/neovim
 
 bash ./scripts/setup.sh
@@ -156,13 +156,13 @@ Debe salir:
 La rama usada actualmente es:
 
 ```text
-develop
+develop-linux-docker
 ```
 
 Clona esa rama concreta:
 
 ```bash
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git
 ```
 
 Esto crea la carpeta:
@@ -186,7 +186,7 @@ git branch
 Debe aparecer:
 
 ```text
-* develop
+* develop-linux-docker
 ```
 
 ---
@@ -251,7 +251,7 @@ apt update
 apt install curl git -y
 
 cd /root
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git
 cd /root/neovim
 
 bash ./scripts/setup.sh
@@ -333,7 +333,7 @@ Primero clona:
 
 ```bash
 cd /root
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git
 cd /root/neovim
 bash ./scripts/setup.sh
 ```
@@ -465,7 +465,7 @@ Después clona la rama correcta:
 
 ```bash
 cd ~
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git
 cd ~/neovim
 bash ./scripts/setup.sh
 ```
@@ -484,7 +484,7 @@ Si quieres que `nvim` cargue esta config sin variables:
 
 ```bash
 mkdir -p ~/.config
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git ~/.config/nvim
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git ~/.config/nvim
 bash ~/.config/nvim/scripts/setup.sh
 nvim
 ```
@@ -508,7 +508,7 @@ Usa esto si quieres trabajar directamente desde PowerShell.
 ### 8.1 Instalación inicial
 
 ```powershell
-git clone --single-branch -b develop https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
+git clone --single-branch -b develop-linux-docker https://github.com/LinoELa/neovim.git $env:LOCALAPPDATA\nvim
 cd $env:LOCALAPPDATA\nvim
 .\scripts\setup.ps1
 ```
