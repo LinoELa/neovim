@@ -511,6 +511,7 @@ ensure_base_dependencies() {
   ensure_command curl curl
   ensure_command tar tar
   ensure_command gzip gzip
+  ensure_command unzip unzip
   ensure_command rg ripgrep
   ensure_lazygit
 
@@ -540,7 +541,6 @@ run_nvim_sync() {
   XDG_CONFIG_HOME="$CONFIG_HOME" \
   "$nvim_cmd" --headless "+Lazy! sync" "+qa"
 }
-
 
 # ------------------------------------------------------------------------------
 # Herramientas base de Mason
@@ -595,6 +595,14 @@ local tools = {
   "pyright",
 }
 
+local ok_mason, mason = pcall(require, "mason")
+if not ok_mason then
+  vim.api.nvim_err_writeln("No se pudo cargar mason.nvim.")
+  vim.cmd("cquit")
+end
+
+mason.setup()
+
 local ok_registry, registry = pcall(require, "mason-registry")
 if not ok_registry then
   vim.api.nvim_err_writeln("No se pudo cargar mason-registry. Revisa que mason.nvim esté instalado.")
@@ -644,20 +652,17 @@ local function install_tools()
     vim.cmd("cquit")
   end
 
+  print("Mason terminado correctamente.")
   vim.cmd("qa")
 end
 
-registry.refresh(function()
-  install_tools()
-end)
+registry.refresh(install_tools)
 EOF
 
-  # No usamos :MasonInstall porque en algunos arranques headless puede no existir todavía.
-  # Usamos mason-registry directamente y esperamos a que terminen las instalaciones.
   NVIM_APPNAME="$REPO_NAME" \
   XDG_CONFIG_HOME="$CONFIG_HOME" \
   "$nvim_cmd" --headless \
-    "+silent! Lazy load mason.nvim" \
+    "+lua require('lazy').load({ plugins = { 'mason.nvim' } })" \
     -l "$mason_script"
 
   rm -f "$mason_script"
