@@ -10,8 +10,9 @@ Configuración de Neovim pensada para usarse dentro de un contenedor Linux o Doc
 
 ## Orden de ramas
 
-1. `linux-docker-2.0`, configuración base.
-2. `linux-docker-2.2-lazygit`, configuración final con LazyGit.
+1. `linux-docker-2.0` — configuración base
+2. `linux-docker-2.1-mason` — Mason automático en `setup.sh`
+3. `linux-docker-2.2-lazygit` — configuración final con LazyGit (destino)
 
 Rama recomendada actual:
 
@@ -29,8 +30,10 @@ Dentro del contenedor:
 
 ```bash
 apt update
-apt install curl git -y
+apt install curl git unzip -y
 ```
+
+`unzip` lo necesita Mason para descomprimir binarios. Si no lo instalas aquí, `setup.sh` intentará instalarlo en sistemas con `apt-get`.
 
 ---
 
@@ -52,7 +55,35 @@ Importante: clonar en `/root/neovim`, no en `/`.
 
 ---
 
-## Paso 3: cambiar a la rama con LazyGit
+## Paso 3: cambiar a la rama Mason
+
+Si el repo ya existe en `/root/neovim`, no vuelvas a clonar:
+
+```bash
+cd /root/neovim
+git fetch origin
+git checkout linux-docker-2.1-mason
+git pull
+bash ./scripts/setup.sh
+```
+
+En esta rama, `setup.sh` instala automáticamente herramientas de Mason (LSP, linters y formatters):
+
+| Uso | Herramientas |
+|-----|--------------|
+| Lua | `lua-language-server`, `stylua` |
+| JavaScript / TypeScript | `typescript-language-server`, `eslint-lsp`, `prettier`, `prettierd` |
+| JSON / YAML | `json-lsp`, `yaml-language-server` |
+| Docker | `dockerls`, `docker-compose-language-service` |
+| Bash | `bash-language-server`, `shellcheck`, `shfmt` |
+| Python | `pyright` |
+| Treesitter | `tree-sitter-cli` |
+
+Al terminar deberías ver en consola: `Mason terminado correctamente.`
+
+---
+
+## Paso 4: cambiar a la rama con LazyGit
 
 Si ya existe el repositorio en `/root/neovim`, no vuelvas a clonar. Cambia de rama:
 
@@ -70,12 +101,71 @@ bash ./scripts/setup.sh
 
 ---
 
-## Paso 4: abrir Neovim
+## Paso 5: abrir Neovim
 
-Abrir Neovim con las variables correctas:
+Tu configuración debe abrirse así:
 
 ```bash
-NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
+NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim .
+```
+
+Para no escribir eso cada vez, crea un alias (funciona desde cualquier directorio):
+
+```bash
+echo 'alias nvim="NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root /usr/local/bin/nvim"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Ahora puedes usar:
+
+```bash
+nvim .
+```
+
+Comprueba que el alias existe:
+
+```bash
+type nvim
+```
+
+Debe salir algo como:
+
+```text
+nvim is aliased to ...
+```
+
+---
+
+# Mason setup (opcional)
+
+- En `linux-docker-2.0`, Mason **no** se instala en el `setup.sh` base.
+- En `linux-docker-2.1-mason` (y ramas posteriores), `setup.sh` **ya instala** las herramientas de Mason de forma automática.
+- Usa `mason-setup.sh` solo si quieres **reinstalar o actualizar** herramientas Mason sin repetir todo el setup.
+
+Comprueba que existe:
+
+```bash
+ls -l ./scripts/mason-setup.sh
+```
+
+Comprueba que tienes unzip:
+
+```bash
+command -v unzip
+```
+
+Ejecutar:
+
+```bash
+cd /root/neovim
+chmod +x ./scripts/mason-setup.sh
+bash ./scripts/mason-setup.sh
+```
+
+O si ya tiene permisos de ejecución:
+
+```bash
+./scripts/mason-setup.sh
 ```
 
 ---
@@ -97,6 +187,12 @@ git pull
 
 bash ./scripts/setup.sh
 
+nvim .
+```
+
+Si no creaste el alias del Paso 5, usa:
+
+```bash
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
 ```
 
@@ -181,6 +277,43 @@ Probablemente has abierto Neovim sin las variables correctas.
 NVIM_APPNAME=neovim XDG_CONFIG_HOME=/root nvim
 ```
 
+O con el alias del Paso 5:
+
+```bash
+nvim .
+```
+
+---
+
+## Mason no instala herramientas
+
+**Síntomas:** el setup termina pero `:Mason` está vacío, o ves errores de timeout / `unzip`.
+
+**Comprueba:**
+
+```bash
+command -v unzip
+cd /root/neovim
+git branch --show-current
+bash ./scripts/setup.sh
+```
+
+En `linux-docker-2.1-mason` o posterior, Mason se instala con `setup.sh`. En `linux-docker-2.0` debes pasar al Paso 3 antes.
+
+**Reinstalar solo Mason:**
+
+```bash
+cd /root/neovim
+bash ./scripts/mason-setup.sh
+```
+
+Dentro de Neovim:
+
+```vim
+:Mason
+:checkhealth mason
+```
+
 ---
 
 # Notas adicionales
@@ -189,4 +322,6 @@ Más información en:
 
 ```text
 docs/notas-problemas-soluciones.md
+docs/mason.md
+LINUX-DOCKER.md
 ```
