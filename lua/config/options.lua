@@ -13,7 +13,6 @@ vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 
-
 vim.opt.clipboard = "unnamedplus"
 vim.opt.swapfile = false
 if vim.fn.has("win32") == 1 then
@@ -30,11 +29,12 @@ else
   vim.opt.shellxquote = ""
 end
 
-
-
 vim.diagnostic.config({
-    virtual_text = true,
-    float = {
-        source = "always"
-    }
+  virtual_text = true,
+  float = {
+    source = "always",
+  },
 })
+
+vim.opt.spell = false
+vim.opt.spelllang = { "es", "en" }
